@@ -5,3 +5,15 @@
 /node_modules
 /umd
 npm-debug.log*
+
+node_modules
+package-lock.json
+yarn.lock
+lib
+dist
+
+.idea
+.DS_Store
+.cache
+.vscode
+
