@@ -1,41 +1,8 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { render } from 'react-dom'
-
-import store, { COMMON_TYPE } from '../../src'
-
-const CLICK = Symbol('click')
-const REVERT = Symbol('revert')
-
-const initialState = {
-  times: null,
-  dates: [],
-}
-
-const middleware = dispatch => ({
-  [CLICK]: () => {
-    dispatch({
-      type: COMMON_TYPE.PUSH,
-      payload: {
-        keys: ['dates'],
-        data: Date.now(),
-      },
-    })
-  },
-  [REVERT]: () => {
-    dispatch({
-      type: COMMON_TYPE.POP,
-      payload: {
-        keys: ['dates'],
-      },
-    })
-  },
-})
-
-const {
-  useDispatch,
-  useStore,
-  Provider,
-} = store({ initialState, middleware })
+import { COMMON_TYPE } from '../../src'
+import { CLICK, REVERT } from '../config/middleware'
+import { useDispatch, useStore, Provider } from '../config/myStore'
 
 function IndexPage() {
   const dispatch = useDispatch()
@@ -56,7 +23,11 @@ function IndexPage() {
   const handleClear = useCallback(() => {
     dispatch({ type: COMMON_TYPE.CLEAR, payload: { keys: ['dates'] } })
     dispatch({ type: COMMON_TYPE.CLEAR, payload: { keys: ['times'] } })
-  }, [dispatch, store])
+  }, [dispatch])
+
+  // useEffect(() => {
+  //   debugger
+  // }, [store])
 
   return (
     <div>

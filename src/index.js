@@ -24,7 +24,7 @@ import {
 } from './utils/constants'
 
 // 导出的
-const store = ({ initialState, middleware }) => {
+const storact = ({ initialState, middleware }) => {
   const storeContext = createContext(null)
   const dispatchContext = createContext(null)
   const Provider = ({ children }) => {
@@ -58,4 +58,4 @@ export const COMMON_TYPE = Object.freeze({
   UNSHIFT,
 })
 
-export default store
+export default storact
