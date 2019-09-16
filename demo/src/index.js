@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { render } from 'react-dom'
 import { COMMON_TYPE } from '../../src'
-import { CLICK, REVERT } from '../config/middleware'
+import { CLICK, REVERT, TIME } from '../config/middlewares'
 import { useDispatch, useStore, Provider } from '../config/myStore'
 
 function IndexPage() {
@@ -25,6 +25,10 @@ function IndexPage() {
     dispatch({ type: COMMON_TYPE.CLEAR, payload: { keys: ['times'] } })
   }, [dispatch])
 
+  const handleClickGetTime = useCallback(() => {
+    dispatch({ type: TIME })
+  }, [dispatch])
+
   // useEffect(() => {
   //   debugger
   // }, [store])
@@ -34,6 +38,7 @@ function IndexPage() {
       <div onClick={handleClick}>click</div>
       <div onClick={handleRevert}>revert</div>
       <div onClick={handleClear}>clear</div>
+      <div onClick={handleClickGetTime}>getTime</div>
       <div>times: {store.get('times')}</div>
       <div>
         {

@@ -1,6 +1,6 @@
 import initialState from './initialState'
-import middleware, { CLICK, REVERT } from './middleware'
-import storact from '../../src'
+import middlewares, { CLICK, REVERT } from './middlewares'
+import { create } from '../../src'
 
-const { useDispatch, useStore, Provider } = storact({ initialState, middleware })
+const { useDispatch, useStore, Provider } = create({ initialState, middlewares })
 export { useDispatch, useStore, Provider }

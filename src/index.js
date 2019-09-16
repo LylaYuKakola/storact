@@ -22,9 +22,10 @@ import {
   SHIFT,
   UNSHIFT,
 } from './utils/constants'
+import middlewares from '../demo/config/middlewares'
 
 // 导出的
-const storact = ({ initialState, middleware }) => {
+export const create = ({ initialState, middlewares }) => {
   const storeContext = createContext(null)
   const dispatchContext = createContext(null)
   const Provider = ({ children }) => {
@@ -32,7 +33,7 @@ const storact = ({ initialState, middleware }) => {
       state,
       dispatch,
     ] = useReducer(reducer, Immutable.fromJS(initialState))
-    const enhancedDispatch = useMiddleware({ dispatch, middleware })
+    const enhancedDispatch = useMiddleware({ dispatch, middlewares })
     return (
       <dispatchContext.Provider value={enhancedDispatch}>
         <storeContext.Provider value={state}>
@@ -58,4 +59,3 @@ export const COMMON_TYPE = Object.freeze({
   UNSHIFT,
 })
 
-export default storact
