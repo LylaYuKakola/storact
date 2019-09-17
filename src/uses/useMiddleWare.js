@@ -2,19 +2,21 @@
  * @desc 使用middleware增强dispatch
  */
 
-import { useRef, useMemo, useCallback } from 'react'
-import { error, warn } from '../utils/log'
+import { useMemo, useRef } from 'react'
+import { error, warn, log } from '../utils/log'
 import * as tj from '../utils/typeJudgement'
-
-const emptyObject = Object.create(null)
+import { PEND, DELAY, THROTTLE, DEBOUNCE } from '../utils/constants'
 
 export default function useMiddleware({
   dispatch,
   middlewares,
 }) {
-  const index = useRef(0)
+  const pendingMap = useRef(new Map()) // 记录挂起状态 （Boolean）
+  const throttleMap = useRef(new Map()) // 记录节流状态（Boolean）
+  const debounceMap = useRef(new Map()) // 记录防抖状态（Timer）
 
-  return useMemo(() => {
+  // 通过中间件扩展dispatch
+  const enhanced = useMemo(() => {
     if (
       !middlewares ||
       !(middlewares instanceof Array) ||
@@ -35,50 +37,77 @@ export default function useMiddleware({
     }
     if (middlewares.some(m => !(tj.isFunction(m)))) {
       warn(`"middlewares" includes an item which is not a function`)
+      return dispatch
     }
 
-    return [...middlewares, dispatch].reverse().reduce((next, curr) => {
-      return curr(
+    return [...middlewares, dispatch].reverse().reduce((next, curr) => (
+      curr(
         dispatch,
-        tj.isAsyncFunction(next) ? async (...args) => {
+        async (...args) => {
           await next(...args)
-        } : next,
+        },
       )
-    })
+    ))
   }, [dispatch, middlewares])
 
-  // 获取中间件的handler对象
-  // const handlers = useMemo(() => {
-  //   if (!middleware) return emptyObject
-  //   if (!(tj.isFunction(middleware))) {
-  //     error('wrong to load "middleware": expected a function')
-  //     return emptyObject
-  //   }
-  //   return middleware.call(null, dispatch) || {}
-  // }, [middleware, dispatch])
+  // 增加挂起、防抖和节流
+  return useMemo(() => async action => {
+    const { type, config } = action
 
-  // 因为中间件多为异步操作，
-  // 所以需要设置一个阀门，控制同一类型的中间操作不能同时执行两个
-  // 这样不会出现对store的修改冲突
-  // @TODO 暂时去掉阀门
-  // const pendingMap = useRef(new Map())
+    // 判断被之前同type的action挂起的阻止
+    if (pendingMap.current.get(type)) {
+      log(`"${type}" action is rejected because a previous (pending) action isn't done`)
+      return
+    }
 
-  // return useMemo(() => async action => {
-  //   const { type, payload } = action
-  //   // const pendingState = pendingMap.current.get(type)
-  //   // if (pendingState) return
-  //   // pendingMap.current.set(type, true)
-  //   try {
-  //     const handler = handlers[type]
-  //     if (handler) {
-  //       await handler(payload)
-  //     } else {
-  //       dispatch(action)
-  //     }
-  //   } catch (error) {
-  //     error(`${error.name || 'Unexpected error!'}`)
-  //   } finally {
-  //     // setTimeout(() => { pendingMap.current.set(type, false) }, 0) // 控制阀门状态在下次event loop恢复
-  //   }
-  // }, [handlers])
+    // 判断被之前同type的action节流的阻止
+    if (throttleMap.current.get(type)) {
+      log(`"${type}" action is rejected because a previous (throttle) action isn't done`)
+      return
+    }
+
+    // 根据config设置 等待、挂起、防抖的设置
+    if (config) {
+      const configDelay = Number(config[DELAY])
+      const configPend = Boolean(config[PEND])
+      const configDebounce = Number(config[DEBOUNCE])
+      const configThrottle = Number(config[THROTTLE])
+
+      // delay
+      if (configDelay > 0) {
+        await new Promise(resolve => setTimeout(() => resolve(), configDelay))
+      }
+
+      // pend
+      if (configPend) {
+        pendingMap.current.set(type, true)
+      }
+
+      if (configDebounce > 0) {
+        const currentDebounceId = (debounceMap.current.get(type) || 0) + 1
+        debounceMap.current.set(type, currentDebounceId)
+        const nextDebounceId = await new Promise(res => {
+          setTimeout(() => res(debounceMap.current.get(type)), configDebounce)
+        })
+        if (nextDebounceId !== currentDebounceId) {
+          log(`"${type}-${currentDebounceId}" action was cleared by next "${type}-${nextDebounceId}" action`)
+          return
+        }
+      }
+
+      // throttle
+      if (configThrottle > 0) {
+        throttleMap.current.set(type, true)
+        setTimeout(() => throttleMap.current.set(type, false), configThrottle)
+      }
+    }
+
+    try {
+      await enhanced(action)
+    } catch (e) {
+      error(e)
+    } finally {
+      pendingMap.current.set(type, false)
+    }
+  }, [enhanced])
 }

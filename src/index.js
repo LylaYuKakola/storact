@@ -21,8 +21,11 @@ import {
   POP,
   SHIFT,
   UNSHIFT,
+  DEBOUNCE,
+  THROTTLE,
+  DELAY,
+  PEND,
 } from './utils/constants'
-import middlewares from '../demo/config/middlewares'
 
 // 导出的
 export const create = ({ initialState, middlewares }) => {
@@ -57,5 +60,12 @@ export const COMMON_TYPE = Object.freeze({
   POP,
   SHIFT,
   UNSHIFT,
+})
+
+export const COMMON_CONFIG = Object.freeze({
+  DEBOUNCE,
+  THROTTLE,
+  DELAY,
+  PEND,
 })
 

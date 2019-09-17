@@ -17,3 +17,11 @@ export const SHIFT = Symbol('shift')
 export const UNSHIFT = Symbol('unShift')
 export const INSERT = Symbol('insert')
 /* ************************************* */
+
+/* ********* dispatch的config类型 ********** */
+export const PEND = Symbol('pend')
+export const DEBOUNCE = Symbol('debounce')
+export const THROTTLE = Symbol('throttle')
+export const DELAY = Symbol('delay')
+/* ************************************* */
+

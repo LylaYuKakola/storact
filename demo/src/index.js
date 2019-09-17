@@ -1,21 +1,20 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { render } from 'react-dom'
-import { COMMON_TYPE } from '../../src'
-import { CLICK, REVERT, TIME } from '../config/middlewares'
-import { useDispatch, useStore, Provider } from '../config/myStore'
+import { COMMON_CONFIG, COMMON_TYPE } from '../../src'
+import { useDispatch, useStore, Provider } from './myStore'
 
 function IndexPage() {
   const dispatch = useDispatch()
   const store = useStore()
 
   const handleClick = useCallback(() => {
-    dispatch({ type: CLICK })
+    dispatch({ type: 'click' })
     const times = store.get('times')
     dispatch({ type: COMMON_TYPE.UPDATE, payload: { keys: ['times'], data: Number(times) + 1 } })
   }, [dispatch, store])
 
   const handleRevert = useCallback(() => {
-    dispatch({ type: REVERT })
+    dispatch({ type: 'revert' })
     const times = store.get('times')
     dispatch({ type: COMMON_TYPE.UPDATE, payload: { keys: ['times'], data: Number(times) - 1 } })
   }, [dispatch, store])
@@ -26,7 +25,35 @@ function IndexPage() {
   }, [dispatch])
 
   const handleClickGetTime = useCallback(() => {
-    dispatch({ type: TIME })
+    dispatch({ type: 'getTime' })
+  }, [dispatch])
+
+  const handleClickGetTimeDelay = useCallback(() => {
+    dispatch({
+      type: 'getTime',
+      config: { [COMMON_CONFIG.DELAY]: 1000 },
+    })
+  }, [dispatch])
+
+  const handleClickGetTimeDebounce = useCallback(() => {
+    dispatch({
+      type: 'getTime',
+      config: { [COMMON_CONFIG.DEBOUNCE]: 1000 },
+    })
+  }, [dispatch])
+
+  const handleClickGetTimeThrottle = useCallback(() => {
+    dispatch({
+      type: 'getTime',
+      config: { [COMMON_CONFIG.THROTTLE]: 1000 },
+    })
+  }, [dispatch])
+
+  const handleClickGetTimePend = useCallback(() => {
+    dispatch({
+      type: 'getTime',
+      config: { [COMMON_CONFIG.PEND]: true },
+    })
   }, [dispatch])
 
   // useEffect(() => {
@@ -39,6 +66,10 @@ function IndexPage() {
       <div onClick={handleRevert}>revert</div>
       <div onClick={handleClear}>clear</div>
       <div onClick={handleClickGetTime}>getTime</div>
+      <div onClick={handleClickGetTimeDelay}>getTime_Delay</div>
+      <div onClick={handleClickGetTimeDebounce}>getTime_Debounce</div>
+      <div onClick={handleClickGetTimeThrottle}>getTime_Throttle</div>
+      <div onClick={handleClickGetTimePend}>getTime_Pend</div>
       <div>times: {store.get('times')}</div>
       <div>
         {
