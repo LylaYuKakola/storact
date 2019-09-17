@@ -99,6 +99,6 @@ export default (state, action) => {
     return state.setIn(keys, target.insert(...data))
   }
 
-  console.warn(`dispatch没有 "${type}" 类型的操作，state修改失败`)
+  console.warn(`dispatch没有 "${String(type)}" 类型的操作，state修改失败`)
   return state // 保证state不丢失
 }

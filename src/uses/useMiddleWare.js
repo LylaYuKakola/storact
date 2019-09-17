@@ -56,13 +56,13 @@ export default function useMiddleware({
 
     // 判断被之前同type的action挂起的阻止
     if (pendingMap.current.get(type)) {
-      log(`"${type}" action is rejected because a previous (pending) action isn't done`)
+      log(`"${String(type)}" action is rejected because a previous (pending) action isn't done`)
       return
     }
 
     // 判断被之前同type的action节流的阻止
     if (throttleMap.current.get(type)) {
-      log(`"${type}" action is rejected because a previous (throttle) action isn't done`)
+      log(`"${String(type)}" action is rejected because a previous (throttle) action isn't done`)
       return
     }
 
@@ -90,7 +90,7 @@ export default function useMiddleware({
           setTimeout(() => res(debounceMap.current.get(type)), configDebounce)
         })
         if (nextDebounceId !== currentDebounceId) {
-          log(`"${type}-${currentDebounceId}" action was cleared by next "${type}-${nextDebounceId}" action`)
+          log(`"${String(type)}-${currentDebounceId}" action was cleared by next "${String(type)}-${nextDebounceId}" action`)
           return
         }
       }
