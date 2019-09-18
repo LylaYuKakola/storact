@@ -12,9 +12,16 @@ import {
   SHIFT,
   UNSHIFT,
   INSERT,
+  REVERT,
+  _SAVE_CURRENT_STATE_,
 } from '../utils/constants'
 import { List } from 'immutable'
-import { error } from '../utils/log'
+import { error, warn } from '../utils/log'
+
+// revert相关
+const EMPTY_SYMBOL = Symbol('empty')
+const revertMap = new Map()
+let currentPointer = 0 // 当前指针
 
 // 提供基础的state操作
 export default (state, action) => {
@@ -23,6 +30,27 @@ export default (state, action) => {
   // keys表示要修改的每层的key的集合（数组则为数组下标）
   // value表示要更新的值，merge和update有不同的操作
   const { keys, data } = (payload || {})
+
+  if (type === _SAVE_CURRENT_STATE_) {
+    if (currentPointer >= 10) {
+      revertMap.set(currentPointer - 10, EMPTY_SYMBOL) // 只记录十个历史的state
+    }
+    revertMap.set(currentPointer, state)
+    currentPointer += 1
+    console.log(revertMap)
+    console.log(currentPointer)
+    return state
+  }
+
+  if (type === REVERT) {
+    const historyState = revertMap.get(currentPointer - 1)
+    if (currentPointer === 0 || historyState === EMPTY_SYMBOL) {
+      warn('no more history!!!')
+      return state
+    }
+    currentPointer -= 1
+    return historyState
+  }
 
   if (type === MERGE) {
     const oldValue = !keys.length ? state : state.getIn(keys)

@@ -9,14 +9,10 @@ function IndexPage() {
 
   const handleClick = useCallback(() => {
     dispatch({ type: 'click' })
-    const times = store.get('times')
-    dispatch({ type: COMMON_TYPE.UPDATE, payload: { keys: ['times'], data: Number(times) + 1 } })
   }, [dispatch, store])
 
   const handleRevert = useCallback(() => {
-    dispatch({ type: 'revert' })
-    const times = store.get('times')
-    dispatch({ type: COMMON_TYPE.UPDATE, payload: { keys: ['times'], data: Number(times) - 1 } })
+    dispatch({ type: COMMON_TYPE.REVERT })
   }, [dispatch, store])
 
   const handleClear = useCallback(() => {
