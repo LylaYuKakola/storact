@@ -20,6 +20,7 @@ import { error, warn } from '../utils/log'
 
 // revert相关
 const EMPTY_SYMBOL = Symbol('empty')
+const NOTHINF_CHANGED = Symbol('nothingChanged')
 const revertMap = new Map()
 let currentPointer = 0 // 当前指针
 
@@ -32,6 +33,8 @@ export default (state, action) => {
   const { keys, data } = (payload || {})
 
   if (type === _SAVE_CURRENT_STATE_) {
+    const lastState = revertMap.get(currentPointer - 1)
+    if (lastState && lastState === state) return state // 如果和上一个历史state相同，那判定这个记录无效
     if (currentPointer >= 10) {
       revertMap.set(currentPointer - 10, EMPTY_SYMBOL) // 只记录十个历史的state
     }

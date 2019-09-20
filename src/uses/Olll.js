@@ -22,7 +22,7 @@ export default function useMiddleware({
   const throttleMap = useRef(new Map()) // 记录节流状态（Boolean）
   const debounceMap = useRef(new Map()) // 记录防抖状态（Timer）
 
-  // 挂载中间件
+  // 通过中间件扩展dispatch
   const enhanced = useMemo(() => {
     if (
       !middlewares ||
@@ -58,11 +58,9 @@ export default function useMiddleware({
   }, [dispatch, middlewares])
 
   // 增加挂起、防抖和节流
-  const enhancedEnhanced = useMemo(() => {
+  return useMemo(() => {
     return async action => {
       const { type, config } = action
-
-      if (!type) return
 
       // 判断被之前同type的action挂起的阻止
       if (pendingMap.current.get(type)) {
@@ -113,7 +111,13 @@ export default function useMiddleware({
       }
 
       try {
-        await enhanced(action)
+        if (type === REVERT) {
+          // revert操作不触发state的记录
+          dispatch({ type })
+        } else {
+          dispatch({ type: _SAVE_CURRENT_STATE_ })
+          await enhanced(action)
+        }
       } catch (e) {
         error(e)
       } finally {
@@ -121,24 +125,4 @@ export default function useMiddleware({
       }
     }
   }, [enhanced])
-
-  // 增加actions的批量执行
-  return useMemo(() => {
-    return async actionOrActions => {
-      const actions = tj.isArray(actionOrActions) ? actionOrActions : [actionOrActions]
-      const hasRevert = actions.some(action => action.type === REVERT)
-
-      if (hasRevert) {
-        dispatch({ type: REVERT })
-        if (actionOrActions.length > 1) {
-          warn(`if "actions" has a action of type 'REVERT', other actions would be ignored`)
-          warn(`__DO REVERT ONLY__`)
-        }
-        return
-      }
-
-      dispatch({ type: _SAVE_CURRENT_STATE_ }) // 记录当前的状态
-      await actions.map(action => enhancedEnhanced(action))
-    }
-  }, [dispatch, enhancedEnhanced])
 }

@@ -8,16 +8,29 @@ function IndexPage() {
   const store = useStore()
 
   const handleClick = useCallback(() => {
-    dispatch({ type: 'click' })
+    const currentTimes = store.get('times') || 0
+    dispatch([
+      { type: COMMON_TYPE.PUSH, payload: { keys: ['dates'], data: Date.now() } },
+      { type: COMMON_TYPE.UPDATE, payload: { keys: ['times'], data: currentTimes + 1 } },
+    ])
   }, [dispatch, store])
 
   const handleRevert = useCallback(() => {
     dispatch({ type: COMMON_TYPE.REVERT })
   }, [dispatch, store])
 
+  const handleRevertWithOthers = useCallback(() => {
+    dispatch([
+      { type: COMMON_TYPE.REVERT },
+      { type: COMMON_TYPE.CLEAR, payload: { keys: ['times'] } },
+    ])
+  }, [dispatch, store])
+
   const handleClear = useCallback(() => {
-    dispatch({ type: COMMON_TYPE.CLEAR, payload: { keys: ['dates'] } })
-    dispatch({ type: COMMON_TYPE.CLEAR, payload: { keys: ['times'] } })
+    dispatch([
+      { type: COMMON_TYPE.CLEAR, payload: { keys: ['dates'] } },
+      { type: COMMON_TYPE.CLEAR, payload: { keys: ['times'] } },
+    ])
   }, [dispatch])
 
   const handleClickGetTime = useCallback(() => {
@@ -58,15 +71,16 @@ function IndexPage() {
 
   return (
     <div>
-      <div onClick={handleClick}>click</div>
-      <div onClick={handleRevert}>revert</div>
-      <div onClick={handleClear}>clear</div>
-      <div onClick={handleClickGetTime}>getTime</div>
-      <div onClick={handleClickGetTimeDelay}>getTime_Delay</div>
-      <div onClick={handleClickGetTimeDebounce}>getTime_Debounce</div>
-      <div onClick={handleClickGetTimeThrottle}>getTime_Throttle</div>
-      <div onClick={handleClickGetTimePend}>getTime_Pend</div>
-      <div>times: {store.get('times')}</div>
+      <div onClick={handleClick}>click</div><br />
+      <div onClick={handleRevert}>revert</div><br />
+      <div onClick={handleRevertWithOthers}>revertWithOthers</div><br />
+      <div onClick={handleClear}>clear</div><br />
+      <div onClick={handleClickGetTime}>getTime</div><br />
+      <div onClick={handleClickGetTimeDelay}>getTime_Delay</div><br />
+      <div onClick={handleClickGetTimeDebounce}>getTime_Debounce</div><br />
+      <div onClick={handleClickGetTimeThrottle}>getTime_Throttle</div><br />
+      <div onClick={handleClickGetTimePend}>getTime_Pend</div><br />
+      <div>times: {String(store.get('times'))}</div><br />
       <div>
         {
           store.get('dates').toJS().map(date => (

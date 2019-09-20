@@ -1,4 +1,4 @@
 export default ({
-  times: null,
+  times: 0,
   dates: [],
 })
