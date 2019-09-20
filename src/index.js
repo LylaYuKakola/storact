@@ -9,7 +9,7 @@ import React, {
 } from 'react'
 import Immutable from 'immutable'
 import reducer from './reducer'
-import useMiddleware from './uses/useMiddleWare'
+import useEnhanced from './enhanced'
 
 import {
   MERGE,
@@ -37,7 +37,7 @@ export const create = ({ initialState, middlewares }) => {
       state,
       dispatch,
     ] = useReducer(reducer, Immutable.fromJS(initialState))
-    const enhancedDispatch = useMiddleware({ dispatch, middlewares })
+    const enhancedDispatch = useEnhanced({ dispatch, middlewares })
     return (
       <dispatchContext.Provider value={enhancedDispatch}>
         <storeContext.Provider value={state}>

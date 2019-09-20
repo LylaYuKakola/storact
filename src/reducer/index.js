@@ -20,7 +20,6 @@ import { error, warn } from '../utils/log'
 
 // revert相关
 const EMPTY_SYMBOL = Symbol('empty')
-const NOTHINF_CHANGED = Symbol('nothingChanged')
 const revertMap = new Map()
 let currentPointer = 0 // 当前指针
 
