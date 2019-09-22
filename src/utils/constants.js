@@ -27,5 +27,9 @@ export const PEND = Symbol('pend')
 export const DEBOUNCE = Symbol('debounce')
 export const THROTTLE = Symbol('throttle')
 export const DELAY = Symbol('delay')
-/* ************************************* */
+/* **************************************** */
+
+/* ********* globalState属性的key ********** */
+// export const KEY_ALL_ACTION_TIMES = Symbol('pend')
+/* **************************************** */
 

@@ -7,7 +7,7 @@ import React, {
   createContext,
   useContext,
 } from 'react'
-import Immutable from 'immutable'
+import initialize from './initialize'
 import reducer from './reducer'
 import useEnhanced from './enhanced'
 
@@ -36,7 +36,7 @@ export const create = ({ initialState, middlewares }) => {
     const [
       state,
       dispatch,
-    ] = useReducer(reducer, Immutable.fromJS(initialState))
+    ] = useReducer(reducer, initialize(initialState))
     const enhancedDispatch = useEnhanced({ dispatch, middlewares })
     return (
       <dispatchContext.Provider value={enhancedDispatch}>
