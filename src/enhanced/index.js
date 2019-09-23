@@ -131,7 +131,7 @@ export default function useMiddleware({
       if (hasRevert) {
         dispatch({ type: REVERT })
         if (actionOrActions.length > 1) {
-          warn(`if "actions" has a action of type 'REVERT', other actions would be ignored`)
+          warn(`if "actions" has an action of type 'REVERT', other actions would be ignored`)
           warn(`__DO REVERT ONLY__`)
         }
         return
