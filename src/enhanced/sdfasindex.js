@@ -9,15 +9,15 @@ import getFunctionalActions from '../utils/getFunctionalActions'
 import { DEBOUNCE, DELAY, PEND, THROTTLE } from '../utils/constants'
 
 export default function useMiddleware({
-  originalDispatch,
-  getState,
-  middlewares,
-  effects,
-}) {
+                                        originalDispatch,
+                                        getState,
+                                        middlewares,
+                                        effects,
+                                      }) {
   const pendingMap = useRef(new Map()) // 记录挂起状态 （Boolean）
   const throttleMap = useRef(new Map()) // 记录节流状态（Boolean）
   const debounceMap = useRef(new Map()) // 记录防抖状态（Timer）
-
+  
   // 挂载中间件
   const enhancedStep1 = useMemo(() => {
     if (
@@ -40,7 +40,7 @@ export default function useMiddleware({
       warn(`"middlewares" includes an item which is not a function`)
       return originalDispatch
     }
-
+    
     return [...middlewares, originalDispatch].reverse().reduce((next, curr) => {
       return curr({
         getState,
@@ -48,68 +48,48 @@ export default function useMiddleware({
       })(next)
     })
   }, [getState, originalDispatch, middlewares])
-
+  
   // 挂载effects
   const enhancedStep2 = useMemo(() => {
-    const effectKeys = Object.keys(effects)
-    const effectActiveDispatch = new Proxy(Object.create(null), {
-      get: (_t, key) => async (...args) => {
-        if (effectKeys.includes(key)) {
-          await effects[key]({
-            getState,
-            dispatch: effectActiveDispatch,
-          })(args)
-        } else {
-          await enhancedStep1({
-            type: key,
-            payload: args[0],
-            config: args[1],
-          })
-        }
-      },
-    })
-    return async action => {
-      const { type, payload, config } = action
-      await effectActiveDispatch[type](payload, config)
-    }
-  }, [getState, enhancedStep1, effects])
-
+  
+  }, [])
+  
   // 增加挂起、防抖和节流
   const enhancedStep3 = useMemo(() => {
     return async action => {
       const { type, config } = action
-
+      
       if (!type) return
-
+      
       // 判断被之前同type的action挂起的阻止
       if (pendingMap.current.get(type)) {
         log(`"${String(type)}" action is rejected because a previous (pending) action isn't done`)
         return
       }
-
+      
       // 判断被之前同type的action节流的阻止
       if (throttleMap.current.get(type)) {
         log(`"${String(type)}" action is rejected because a previous (throttle) action isn't done`)
         return
       }
-
+      
       // 根据config设置 等待、挂起、防抖的设置
       if (config) {
         const configDelay = Number(config[DELAY])
         const configPend = Boolean(config[PEND])
         const configDebounce = Number(config[DEBOUNCE])
         const configThrottle = Number(config[THROTTLE])
-
+        
         // delay
         if (configDelay > 0) {
           await new Promise(resolve => setTimeout(() => resolve(), configDelay))
         }
-
+        
         // pend
         if (configPend) {
           pendingMap.current.set(type, true)
         }
-
+        
         if (configDebounce > 0) {
           const currentDebounceId = (debounceMap.current.get(type) || 0) + 1
           debounceMap.current.set(type, currentDebounceId)
@@ -121,25 +101,49 @@ export default function useMiddleware({
             return
           }
         }
-
+        
         // throttle
         if (configThrottle > 0) {
           throttleMap.current.set(type, true)
           setTimeout(() => throttleMap.current.set(type, false), configThrottle)
         }
       }
-
+      
       try {
-        await enhancedStep2(action)
+        await enhancedStep1(action)
       } catch (e) {
         error(e)
       } finally {
         pendingMap.current.set(type, false)
       }
     }
-  }, [enhancedStep2])
-
+  }, [enhancedStep1])
+  
+  // 挂载effects
   return useMemo(() => {
-    return getFunctionalActions(enhancedStep3)
-  }, [enhancedStep3])
+    const effectKeys = Object.keys(effects)
+    const effectActiveDispatch = new Proxy(Object.create(null), {
+      get(_t, key) {
+        return async (...args) => {
+          if (effectKeys.includes(key)) {
+            await effects[key]({
+              getState,
+              dispatch: effectActiveDispatch,
+            })(args)
+          } else {
+            await enhancedStep2({
+              type: key,
+              payload: args[0],
+              config: args[1],
+            })
+          }
+        }
+      },
+      set() {
+        // FREEZE: do nothing
+        console.log('original dispatch cannot be changed')
+      },
+    })
+    return effectActiveDispatch
+  }, [getState, enhancedStep2, effects])
 }

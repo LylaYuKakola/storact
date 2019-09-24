@@ -8,16 +8,12 @@ function IndexPage() {
   const store = useStore()
 
   const handleClick = useCallback(() => {
-    const currentTimes = store.get('times')
-    dispatch[COMMON_TYPE.PUSH]({
-      keys: ['dates'],
-      data: 123123123,
-    })
-    dispatch[COMMON_TYPE.UPDATE]({
-      keys: ['times'],
-      data: currentTimes + 1,
-    })
+    dispatch.click()
   }, [dispatch, store])
+
+  const handleClickTwice = useCallback(() => {
+    dispatch.clickTwice()
+  }, [dispatch])
 
   const handleClear = useCallback(() => {
     dispatch[COMMON_TYPE.CLEAR]({ keys: ['dates'] })
@@ -25,23 +21,23 @@ function IndexPage() {
   }, [dispatch])
 
   const handleClickGetTime = useCallback(() => {
-    dispatch.getTime()
+    dispatch.markCurrentTime()
   }, [dispatch])
 
   const handleClickGetTimeDelay = useCallback(() => {
-    dispatch.getTime({},  { [COMMON_CONFIG.DELAY]: 1000 })
+    dispatch.markCurrentTime({}, { [COMMON_CONFIG.DELAY]: 1000 })
   }, [dispatch])
 
   const handleClickGetTimeDebounce = useCallback(() => {
-    dispatch.getTime({},  { [COMMON_CONFIG.DEBOUNCE]: 1000 })
+    dispatch.markCurrentTime({}, { [COMMON_CONFIG.DEBOUNCE]: 1000 })
   }, [dispatch])
 
   const handleClickGetTimeThrottle = useCallback(() => {
-    dispatch.getTime({},  { [COMMON_CONFIG.THROTTLE]: 1000 })
+    dispatch.markCurrentTime({}, { [COMMON_CONFIG.THROTTLE]: 1000 })
   }, [dispatch])
 
   const handleClickGetTimePend = useCallback(() => {
-    dispatch.getTime({},  { [COMMON_CONFIG.PEND]: 1000 })
+    dispatch.markCurrentTime({}, { [COMMON_CONFIG.PEND]: 1000 })
   }, [dispatch])
 
   // useEffect(() => {
@@ -50,16 +46,17 @@ function IndexPage() {
 
   return (
     <div>
-      <div onClick={handleClick}>click</div><br />
+      <button onClick={handleClick}>click</button><br />
+      <button onClick={handleClickTwice}>Twice</button><br />
       {/* <div onClick={handleRevert}>revert</div><br /> */}
       {/* <div onClick={handleRevertWithOthers}>revertWithOthers</div><br /> */}
-      <div onClick={handleClear}>clear</div><br />
-      <div onClick={handleClickGetTime}>getTime</div><br />
-      <div onClick={handleClickGetTimeDelay}>getTime_Delay</div><br />
-      <div onClick={handleClickGetTimeDebounce}>getTime_Debounce</div><br />
-      <div onClick={handleClickGetTimeThrottle}>getTime_Throttle</div><br />
-      <div onClick={handleClickGetTimePend}>getTime_Pend</div><br />
-      <div>times: {String(store.get('times'))}</div><br />
+      <button onClick={handleClear}>clear</button><br />
+      <button onClick={handleClickGetTime}>getTime</button><br />
+      <button onClick={handleClickGetTimeDelay}>getTime_Delay</button><br />
+      <button onClick={handleClickGetTimeDebounce}>getTime_Debounce</button><br />
+      <button onClick={handleClickGetTimeThrottle}>getTime_Throttle</button><br />
+      <button onClick={handleClickGetTimePend}>getTime_Pend</button><br />
+      <p>times: {String(store.get('times'))}</p><br />
       <div>
         {
           store.get('dates').toJS().map(date => (

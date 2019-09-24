@@ -32,7 +32,7 @@ import {
 } from './utils/constants'
 
 // 导出的
-export const create = ({ initialState, middlewares }) => {
+export const create = ({ initialState, middlewares, effects }) => {
   const storeContext = createContext(null)
   const dispatchContext = createContext(null)
 
@@ -40,7 +40,7 @@ export const create = ({ initialState, middlewares }) => {
     const currentState = useRef(null)
     const [state, originalDispatch] = useReducer(reducer, initialize(initialState))
     const getState = useCallback(() => currentState.current, [])
-    const enhancedDispatch = useEnhanced({ originalDispatch, getState, middlewares })
+    const enhancedDispatch = useEnhanced({ originalDispatch, getState, middlewares, effects })
 
     useEffect(() => {
       currentState.current = state
