@@ -12,16 +12,9 @@ import {
   SHIFT,
   UNSHIFT,
   INSERT,
-  REVERT,
-  _SAVE_CURRENT_STATE_,
 } from '../utils/constants'
 import { List } from 'immutable'
-import { error, warn } from '../utils/log'
-
-// revert相关
-const EMPTY_SYMBOL = Symbol('empty')
-const revertMap = new Map()
-let currentPointer = 0 // 当前指针
+import { error } from '../utils/log'
 
 // 提供基础的state操作
 export default (state, action) => {
@@ -30,29 +23,6 @@ export default (state, action) => {
   // keys表示要修改的每层的key的集合（数组则为数组下标）
   // value表示要更新的值，merge和update有不同的操作
   const { keys, data } = (payload || {})
-
-  if (type === _SAVE_CURRENT_STATE_) {
-    const lastState = revertMap.get(currentPointer - 1)
-    if (lastState && lastState === state) return state // 如果和上一个历史state相同，那判定这个记录无效
-    if (currentPointer >= 10) {
-      revertMap.set(currentPointer - 10, EMPTY_SYMBOL) // 只记录十个历史的state
-    }
-    revertMap.set(currentPointer, state)
-    currentPointer += 1
-    console.log(revertMap)
-    console.log(currentPointer)
-    return state
-  }
-
-  if (type === REVERT) {
-    const historyState = revertMap.get(currentPointer - 1)
-    if (currentPointer === 0 || historyState === EMPTY_SYMBOL) {
-      warn('no more history!!!')
-      return state
-    }
-    currentPointer -= 1
-    return historyState
-  }
 
   if (type === MERGE) {
     const oldValue = !keys.length ? state : state.getIn(keys)
@@ -83,7 +53,7 @@ export default (state, action) => {
     const target = state.getIn(keys)
     if (!target) return state
     if (!List.isList(target)) {
-      error('Type "PUSH" of dispatch did not act on target which is not a List instance')
+      error('Type "PUSH" of dispatch did not act on a target which is not a List instance')
       return state
     }
     return state.setIn(keys, target.push(data))
@@ -93,7 +63,7 @@ export default (state, action) => {
     const target = state.getIn(keys)
     if (!target) return state
     if (!List.isList(target)) {
-      error('Type "POP" of dispatch did not act on target which is not a List instance')
+      error('Type "POP" of dispatch did not act on a target which is not a List instance')
       return state
     }
     return state.setIn(keys, target.pop())
@@ -129,6 +99,6 @@ export default (state, action) => {
     return state.setIn(keys, target.insert(...data))
   }
 
-  console.warn(`dispatch没有 "${String(type)}" 类型的操作，state修改失败`)
+  console.warn(`there is no dispatch of "${String(type)}"`)
   return state // 保证state不丢失
 }

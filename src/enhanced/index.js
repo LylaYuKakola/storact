@@ -5,17 +5,17 @@
 import { useMemo, useRef } from 'react'
 import { error, warn, log } from '../utils/log'
 import * as tj from '../utils/typeJudgement'
+import getFunctionalActions from '../utils/getFunctionalActions'
 import {
   PEND,
   DELAY,
   THROTTLE,
   DEBOUNCE,
-  REVERT,
-  _SAVE_CURRENT_STATE_,
 } from '../utils/constants'
 
 export default function useMiddleware({
-  dispatch,
+  originalDispatch,
+  getState,
   middlewares,
 }) {
   const pendingMap = useRef(new Map()) // 记录挂起状态 （Boolean）
@@ -30,32 +30,28 @@ export default function useMiddleware({
       !middlewares.length ||
       middlewares.some(m => !(tj.isFunction(m)))
     ) {
-      return dispatch
+      return originalDispatch
     }
-
-    if (!middlewares) return dispatch
     if (!(middlewares instanceof Array)) {
       warn(`"middlewares" should be an array, but get a ${typeof middlewares}`)
-      return dispatch
+      return originalDispatch
     }
     if (!middlewares.length) {
       warn('"middlewares" is an empty array')
-      return dispatch
+      return originalDispatch
     }
     if (middlewares.some(m => !(tj.isFunction(m)))) {
       warn(`"middlewares" includes an item which is not a function`)
-      return dispatch
+      return originalDispatch
     }
 
-    return [...middlewares, dispatch].reverse().reduce((next, curr) => (
-      curr(
-        dispatch,
-        async (...args) => {
-          await next(...args)
-        },
-      )
-    ))
-  }, [dispatch, middlewares])
+    return [...middlewares, originalDispatch].reverse().reduce((next, curr) => {
+      return curr({
+        getState,
+        dispatch: getFunctionalActions(originalDispatch),
+      })(next)
+    })
+  }, [getState, originalDispatch, middlewares])
 
   // 增加挂起、防抖和节流
   const enhancedEnhanced = useMemo(() => {
@@ -124,21 +120,6 @@ export default function useMiddleware({
 
   // 增加actions的批量执行
   return useMemo(() => {
-    return async actionOrActions => {
-      const actions = tj.isArray(actionOrActions) ? actionOrActions : [actionOrActions]
-      const hasRevert = actions.some(action => action.type === REVERT)
-
-      if (hasRevert) {
-        dispatch({ type: REVERT })
-        if (actionOrActions.length > 1) {
-          warn(`if "actions" has an action of type 'REVERT', other actions would be ignored`)
-          warn(`__DO REVERT ONLY__`)
-        }
-        return
-      }
-
-      dispatch({ type: _SAVE_CURRENT_STATE_ }) // 记录当前的状态
-      await actions.map(action => enhancedEnhanced(action))
-    }
-  }, [dispatch, enhancedEnhanced])
+    return getFunctionalActions(enhancedEnhanced)
+  }, [enhanced])
 }

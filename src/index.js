@@ -6,6 +6,10 @@ import React, {
   useReducer,
   createContext,
   useContext,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
 } from 'react'
 import initialize from './initialize'
 import reducer from './reducer'
@@ -16,7 +20,6 @@ import {
   DELETE,
   UPDATE,
   CLEAR,
-  REVERT,
   INSERT,
   PUSH,
   POP,
@@ -32,12 +35,17 @@ import {
 export const create = ({ initialState, middlewares }) => {
   const storeContext = createContext(null)
   const dispatchContext = createContext(null)
+
   const Provider = ({ children }) => {
-    const [
-      state,
-      dispatch,
-    ] = useReducer(reducer, initialize(initialState))
-    const enhancedDispatch = useEnhanced({ dispatch, middlewares })
+    const currentState = useRef(null)
+    const [state, originalDispatch] = useReducer(reducer, initialize(initialState))
+    const getState = useCallback(() => currentState.current, [])
+    const enhancedDispatch = useEnhanced({ originalDispatch, getState, middlewares })
+
+    useEffect(() => {
+      currentState.current = state
+    }, [state])
+
     return (
       <dispatchContext.Provider value={enhancedDispatch}>
         <storeContext.Provider value={state}>
@@ -46,6 +54,7 @@ export const create = ({ initialState, middlewares }) => {
       </dispatchContext.Provider>
     )
   }
+
   const useDispatch = () => useContext(dispatchContext)
   const useStore = () => useContext(storeContext)
   return { useDispatch, useStore, Provider }
@@ -56,7 +65,6 @@ export const COMMON_TYPE = Object.freeze({
   DELETE,
   UPDATE,
   CLEAR,
-  REVERT,
   INSERT,
   PUSH,
   POP,
