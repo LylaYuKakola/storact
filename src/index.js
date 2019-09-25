@@ -3,13 +3,11 @@
  */
 
 import React, {
-  useReducer,
   createContext,
   useContext,
   useRef,
   useEffect,
   useCallback,
-  useMemo,
 } from 'react'
 import initialize from './initialize'
 import reducer from './reducer'

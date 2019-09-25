@@ -1,5 +1,5 @@
 /**
- * @desc 根据原始的dispatch生成新的函数式action的集合
+ * @desc 针对原始传参action的dispatch, 改造为函数式action的集合，应用在enhanced中
  */
 
 export default dispatch => (

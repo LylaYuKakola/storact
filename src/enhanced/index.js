@@ -1,11 +1,11 @@
 /**
- * @desc 增强dispatch，挂载middleware，增加action的batch
+ * @desc 增强dispatch，挂载effects和middleware，以及防抖、节流、挂起、等待等配置功能
  */
 
 import { useMemo, useRef } from 'react'
 import { error, log, warn } from '../utils/log'
 import * as tj from '../utils/typeJudgement'
-import getFunctionalActions from '../utils/getFunctionalActions'
+import functional from '../functional'
 import { DEBOUNCE, DELAY, PEND, THROTTLE } from '../utils/constants'
 
 export default function useEnhanced({
@@ -69,7 +69,7 @@ export default function useEnhanced({
     return [...middlewares, enhancedStep1].reverse().reduce((next, curr) => {
       return curr({
         getState,
-        dispatch: getFunctionalActions(enhancedStep1),
+        dispatch: functional(enhancedStep1),
       })(next)
     })
   }, [getState, enhancedStep1, middlewares])
@@ -140,6 +140,6 @@ export default function useEnhanced({
   }, [enhancedStep2])
 
   return useMemo(() => {
-    return getFunctionalActions(enhancedStep3)
+    return functional(enhancedStep3)
   }, [enhancedStep3])
 }

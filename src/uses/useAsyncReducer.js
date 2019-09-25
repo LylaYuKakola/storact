@@ -1,5 +1,5 @@
 /**
- * @desc 异步的reducer，返回一个state和一个async dispatch
+ * @desc 异步的reducer，返回 state 和 async_dispatch
  */
 
 import { useRef, useReducer, useMemo, useEffect, useCallback } from 'react'

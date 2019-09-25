@@ -1,5 +1,5 @@
 /**
- * @desc 提供基本的dispatch操作
+ * @desc 提供基本的dispatch操作，主要针对list和map
  */
 
 import {
