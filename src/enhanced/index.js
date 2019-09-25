@@ -8,7 +8,7 @@ import * as tj from '../utils/typeJudgement'
 import getFunctionalActions from '../utils/getFunctionalActions'
 import { DEBOUNCE, DELAY, PEND, THROTTLE } from '../utils/constants'
 
-export default function useMiddleware({
+export default function useEnhanced({
   originalDispatch,
   getState,
   middlewares,
@@ -18,39 +18,8 @@ export default function useMiddleware({
   const throttleMap = useRef(new Map()) // 记录节流状态（Boolean）
   const debounceMap = useRef(new Map()) // 记录防抖状态（Timer）
 
-  // 挂载中间件
-  const enhancedStep1 = useMemo(() => {
-    if (
-      !middlewares ||
-      !(middlewares instanceof Array) ||
-      !middlewares.length ||
-      middlewares.some(m => !(tj.isFunction(m)))
-    ) {
-      return originalDispatch
-    }
-    if (!(middlewares instanceof Array)) {
-      warn(`"middlewares" should be an array, but get a ${typeof middlewares}`)
-      return originalDispatch
-    }
-    if (!middlewares.length) {
-      warn('"middlewares" is an empty array')
-      return originalDispatch
-    }
-    if (middlewares.some(m => !(tj.isFunction(m)))) {
-      warn(`"middlewares" includes an item which is not a function`)
-      return originalDispatch
-    }
-
-    return [...middlewares, originalDispatch].reverse().reduce((next, curr) => {
-      return curr({
-        getState,
-        dispatch: getFunctionalActions(originalDispatch),
-      })(next)
-    })
-  }, [getState, originalDispatch, middlewares])
-
   // 挂载effects
-  const enhancedStep2 = useMemo(() => {
+  const enhancedStep1 = useMemo(() => {
     const effectKeys = Object.keys(effects)
     const effectActiveDispatch = new Proxy(Object.create(null), {
       get: (_t, key) => async (...args) => {
@@ -60,7 +29,7 @@ export default function useMiddleware({
             dispatch: effectActiveDispatch,
           })(args)
         } else {
-          await enhancedStep1({
+          await originalDispatch({
             type: key,
             payload: args[0],
             config: args[1],
@@ -72,7 +41,38 @@ export default function useMiddleware({
       const { type, payload, config } = action
       await effectActiveDispatch[type](payload, config)
     }
-  }, [getState, enhancedStep1, effects])
+  }, [getState, originalDispatch, effects])
+
+  // 挂载中间件
+  const enhancedStep2 = useMemo(() => {
+    if (
+      !middlewares ||
+      !(middlewares instanceof Array) ||
+      !middlewares.length ||
+      middlewares.some(m => !(tj.isFunction(m)))
+    ) {
+      return enhancedStep1
+    }
+    if (!(middlewares instanceof Array)) {
+      warn(`"middlewares" should be an array, but get a ${typeof middlewares}`)
+      return enhancedStep1
+    }
+    if (!middlewares.length) {
+      warn('"middlewares" is an empty array')
+      return enhancedStep1
+    }
+    if (middlewares.some(m => !(tj.isFunction(m)))) {
+      warn(`"middlewares" includes an item which is not a function`)
+      return enhancedStep1
+    }
+
+    return [...middlewares, enhancedStep1].reverse().reduce((next, curr) => {
+      return curr({
+        getState,
+        dispatch: getFunctionalActions(enhancedStep1),
+      })(next)
+    })
+  }, [getState, enhancedStep1, middlewares])
 
   // 增加挂起、防抖和节流
   const enhancedStep3 = useMemo(() => {

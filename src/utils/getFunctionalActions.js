@@ -5,15 +5,13 @@
 export default dispatch => (
   dispatch ? new Proxy(Object.create(null), {
     get(_t, key) {
-      return new Proxy(() => {}, {
-        apply(_tt, _what, args) {
-          dispatch({
-            type: key,
-            payload: args[0],
-            config: args[1],
-          })
-        },
-      })
+      return async (...args) => {
+        await dispatch({
+          type: key,
+          payload: args[0],
+          config: args[1],
+        })
+      }
     },
     set() {
       // FREEZE: do nothing

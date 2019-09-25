@@ -12,19 +12,19 @@ export default {
       throw e
     }
   },
-  click: ({ getState, dispatch }) => () => {
+  click: ({ getState, dispatch }) => async () => {
     const currentTimes = getState().get('times')
     dispatch[COMMON_TYPE.PUSH]({
       keys: ['dates'],
       data: Date.now(),
     })
-    dispatch[COMMON_TYPE.UPDATE]({
+    await dispatch[COMMON_TYPE.UPDATE]({
       keys: ['times'],
       data: currentTimes + 1,
     })
   },
-  clickTwice: ({ dispatch }) => () => {
-    dispatch.markCurrentTime()
-    dispatch.markCurrentTime()
+  clickTwice: ({ dispatch }) => async () => {
+    await dispatch.click()
+    await dispatch.click()
   },
 }

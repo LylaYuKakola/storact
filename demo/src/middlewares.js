@@ -1,13 +1,13 @@
 export default [
   () => next => async action => {
-    console.log(`中间件001`)
+    console.group('第一层中间件')
     await next(action)
-    console.log(`中间件001结束`)
+    console.groupEnd()
   },
   () => next => async action => {
-    console.log(`中间件002`)
+    console.group('第二层中间件')
     await next(action)
-    console.log(`中间件002结束`)
+    console.groupEnd()
   },
   ({ getState }) => next => async action => {
     await next(action)

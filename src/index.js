@@ -14,6 +14,7 @@ import React, {
 import initialize from './initialize'
 import reducer from './reducer'
 import useEnhanced from './enhanced'
+import useAsyncReducer from './uses/useAsyncReducer'
 
 import {
   MERGE,
@@ -38,7 +39,7 @@ export const create = ({ initialState, middlewares, effects }) => {
 
   const Provider = ({ children }) => {
     const currentState = useRef(null)
-    const [state, originalDispatch] = useReducer(reducer, initialize(initialState))
+    const [state, originalDispatch] = useAsyncReducer(reducer, initialize(initialState))
     const getState = useCallback(() => currentState.current, [])
     const enhancedDispatch = useEnhanced({ originalDispatch, getState, middlewares, effects })
 
