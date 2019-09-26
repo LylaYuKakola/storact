@@ -12,7 +12,7 @@ export default {
       throw e
     }
   },
-  click: ({ getState, dispatch }) => async () => {
+  click: ({ getState, dispatch }) => async (a, b) => {
     const currentTimes = getState().get('times')
     dispatch[COMMON_TYPE.PUSH]({
       keys: ['dates'],
@@ -20,7 +20,7 @@ export default {
     })
     await dispatch[COMMON_TYPE.UPDATE]({
       keys: ['times'],
-      data: currentTimes + 1,
+      data: currentTimes + ((+a + +b) || 1),
     })
   },
   clickTwice: ({ dispatch }) => async () => {

@@ -8,7 +8,7 @@ function IndexPage() {
   const store = useStore()
 
   const handleClick = useCallback(() => {
-    dispatch.click()
+    dispatch.click(1, 2)
   }, [dispatch, store])
 
   const handleClickTwice = useCallback(() => {

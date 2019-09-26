@@ -27,7 +27,7 @@ export default function useEnhanced({
           await effects[key]({
             getState,
             dispatch: effectActiveDispatch,
-          })(args)
+          })(...args)
         } else {
           await originalDispatch({
             type: key,
