@@ -16,8 +16,8 @@ function IndexPage() {
   }, [dispatch])
 
   const handleClear = useCallback(() => {
-    dispatch[COMMON_TYPE.CLEAR]({ keys: ['dates'] })
-    dispatch[COMMON_TYPE.CLEAR]({ keys: ['times'] })
+    dispatch[COMMON_TYPE.CLEAR](['dates'])
+    dispatch[COMMON_TYPE.CLEAR](['times'])
   }, [dispatch])
 
   const handleClickGetTime = useCallback(() => {
@@ -25,19 +25,23 @@ function IndexPage() {
   }, [dispatch])
 
   const handleClickGetTimeDelay = useCallback(() => {
-    dispatch.markCurrentTime({}, { [COMMON_CONFIG.DELAY]: 1000 })
+    const dispatchWithDelay = dispatch.config({ [COMMON_CONFIG.DELAY]: 1000 })
+    dispatchWithDelay.markCurrentTime()
   }, [dispatch])
 
   const handleClickGetTimeDebounce = useCallback(() => {
-    dispatch.markCurrentTime({}, { [COMMON_CONFIG.DEBOUNCE]: 1000 })
+    const dispatchWithDebounce = dispatch.config({ [COMMON_CONFIG.DEBOUNCE]: 1000 })
+    dispatchWithDebounce.markCurrentTime()
   }, [dispatch])
 
   const handleClickGetTimeThrottle = useCallback(() => {
-    dispatch.markCurrentTime({}, { [COMMON_CONFIG.THROTTLE]: 1000 })
+    const dispatchWithThrottle = dispatch.config({ [COMMON_CONFIG.THROTTLE]: 1000 })
+    dispatchWithThrottle.markCurrentTime()
   }, [dispatch])
 
   const handleClickGetTimePend = useCallback(() => {
-    dispatch.markCurrentTime({}, { [COMMON_CONFIG.PEND]: 1000 })
+    const dispatchWithPend = dispatch.config({ [COMMON_CONFIG.PEND]: 1000 })
+    dispatchWithPend.markCurrentTime()
   }, [dispatch])
 
   // useEffect(() => {

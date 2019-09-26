@@ -5,7 +5,11 @@
 import { useMemo, useRef } from 'react'
 import { error, log, warn } from '../utils/log'
 import * as tj from '../utils/typeJudgement'
-import functional from '../functional'
+import {
+  convertAfterStep1,
+  convertAfterStep2,
+  convertAfterStep3,
+} from '../functional'
 import { DEBOUNCE, DELAY, PEND, THROTTLE } from '../utils/constants'
 
 export default function useEnhanced({
@@ -20,26 +24,14 @@ export default function useEnhanced({
 
   // 挂载effects
   const enhancedStep1 = useMemo(() => {
-    const effectKeys = Object.keys(effects)
-    const effectActiveDispatch = new Proxy(Object.create(null), {
-      get: (_t, key) => async (...args) => {
-        if (effectKeys.includes(key)) {
-          await effects[key]({
-            getState,
-            dispatch: effectActiveDispatch,
-          })(...args)
-        } else {
-          await originalDispatch({
-            type: key,
-            payload: args[0],
-            config: args[1],
-          })
-        }
-      },
-    })
+    const effectActiveDispatch = convertAfterStep1(
+      getState,
+      originalDispatch,
+      effects,
+    )
     return async action => {
-      const { type, payload, config } = action
-      await effectActiveDispatch[type](payload, config)
+      const { type, payload } = action // 这里就没有config的事儿了
+      await effectActiveDispatch[type](...payload)
     }
   }, [getState, originalDispatch, effects])
 
@@ -69,7 +61,7 @@ export default function useEnhanced({
     return [...middlewares, enhancedStep1].reverse().reduce((next, curr) => {
       return curr({
         getState,
-        dispatch: functional(enhancedStep1),
+        dispatch: convertAfterStep2(enhancedStep1), // 这里就没有config的事儿了
       })(next)
     })
   }, [getState, enhancedStep1, middlewares])
@@ -140,6 +132,6 @@ export default function useEnhanced({
   }, [enhancedStep2])
 
   return useMemo(() => {
-    return functional(enhancedStep3)
+    return convertAfterStep3(enhancedStep3)
   }, [enhancedStep3])
 }
