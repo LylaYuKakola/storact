@@ -7,7 +7,11 @@ function IndexPage() {
   const dispatch = useDispatch()
   const store = useStore()
 
-  const handleClick = useCallback(() => {
+  const handleClickWithoutParams = useCallback(() => {
+    dispatch.click()
+  }, [dispatch, store])
+
+  const handleClickWithParams = useCallback(() => {
     dispatch.click(1, 2)
   }, [dispatch, store])
 
@@ -50,10 +54,9 @@ function IndexPage() {
 
   return (
     <div>
-      <button onClick={handleClick}>click</button><br />
+      <button onClick={handleClickWithoutParams}>click to plus one</button><br />
+      <button onClick={handleClickWithParams}>click to plus three</button><br />
       <button onClick={handleClickTwice}>Twice</button><br />
-      {/* <div onClick={handleRevert}>revert</div><br /> */}
-      {/* <div onClick={handleRevertWithOthers}>revertWithOthers</div><br /> */}
       <button onClick={handleClear}>clear</button><br />
       <button onClick={handleClickGetTime}>getTime</button><br />
       <button onClick={handleClickGetTimeDelay}>getTime_Delay</button><br />
@@ -61,13 +64,13 @@ function IndexPage() {
       <button onClick={handleClickGetTimeThrottle}>getTime_Throttle</button><br />
       <button onClick={handleClickGetTimePend}>getTime_Pend</button><br />
       <p>times: {String(store.get('times'))}</p><br />
-      <div>
+      <ol style={{ width: 300, height: 300, overflow: 'auto', border: '1px solid red' }}>
         {
           store.get('dates').toJS().map(date => (
-            <p>{date}</p>
+            <li>{date}</li>
           ))
         }
-      </div>
+      </ol>
     </div>
   )
 }

@@ -6,7 +6,7 @@
 // 需要给挂载的effect传递 getState, originalDispatch
 // 但是不会对args做拆分
 export const convertAfterStep1 = (getState, originalDispatch, effects) => {
-  const effectKeys = Object.keys(effects)
+  const effectKeys = Reflect.ownKeys(effects)
   const effectActiveDispatch = new Proxy(Object.create(null), {
     get: (_t, key) => async (...args) => {
       if (effectKeys.includes(key)) {
