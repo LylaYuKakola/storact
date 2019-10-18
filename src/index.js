@@ -15,15 +15,6 @@ import useEnhanced from './enhanced'
 import useAsyncReducer from './uses/useAsyncReducer'
 
 import {
-  MERGE,
-  DELETE,
-  UPDATE,
-  CLEAR,
-  INSERT,
-  PUSH,
-  POP,
-  SHIFT,
-  UNSHIFT,
   DEBOUNCE,
   THROTTLE,
   DELAY,
@@ -58,18 +49,6 @@ export const create = ({ initialState, middlewares, effects }) => {
   const useStore = () => useContext(storeContext)
   return { useDispatch, useStore, Provider }
 }
-
-export const COMMON_TYPE = Object.freeze({
-  MERGE,
-  DELETE,
-  UPDATE,
-  CLEAR,
-  INSERT,
-  PUSH,
-  POP,
-  SHIFT,
-  UNSHIFT,
-})
 
 export const COMMON_CONFIG = Object.freeze({
   DEBOUNCE,

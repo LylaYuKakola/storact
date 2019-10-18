@@ -6,7 +6,7 @@ react-hooks实现的状态容器，用于简单的数据共享和状态管理，
 
   1. 根据初始化数据一次性创建store和dispatch，并生成一个Provider，使用更加灵活
   2. 结合immutableJS，保证数据的不变性
-  3. 提供了merge、update、delete、clear、push、pop、shift、unshift几种基本的action，基本满足所有的immutable的数据操作
+  3. 提供了merge、update、delete、clear、push、pop、shift、unshift几种内置的基本的action，基本满足所有的immutable的数据操作
   4. 提供dispatch的扩展，方便使用者包装出更符合业务的封装性更强的action
   5. 提供dispatch的防抖、节流、延迟、挂起的配置，丰富了action
 
@@ -15,9 +15,8 @@ react-hooks实现的状态容器，用于简单的数据共享和状态管理，
 整个工具仅暴露了如下
 
   1. create：用来生成store和dispatch的方法，以及容器Provider
-  2. COMMON_TYPE：封装工具提供的dispatch的action关键字，用来操作immutable的数据
-  3. COMMON_CONFIG：封装工具提供的dispatch的防抖、节流、延迟、挂起的配置关键字
- 
+  2. COMMON_CONFIG：封装工具提供的dispatch的防抖、节流、延迟、挂起的配置关键字
+  3. 内置了merge、update、delete、clear、push、pop、shift、unshift几种方法
 
 ### 1. 基本创建
 
@@ -72,63 +71,62 @@ dispatch的基本使用：
 dispatch[action的类型](参数)
 ```
 
-dispatch的基本使用要结合storact暴露出来的另外一个常量对象COMMON_TYPE，提供的基本action类型如下
+dispatch的基本action类型如下
 
 1.UPDATE: 更新某个数据，包含两个参数，第一个参数为keyPath，为需要更新的路径，第二个参数为要更新的内容
 ```javascript
 // 参数类似于immutableJS的setIn方法
-dispatch[COMMON_TYPE.UPDATE](['dates', 2], '?????')
+dispatch.update(['dates', 2], '?????')
 ```
 
 2.DELETE: 删除某个数据，包含一个参数为keyPath
 ```javascript
 // 参数类似于immutableJS的deleteIn方法
-dispatch[COMMON_TYPE.UPDATE](['dates', 0])
+dispatch.update(['dates', 0])
 ```
 
 3.MERGE：针对Map类型的数据，两个参数，第一个参数为keyPath，为需要更新的路径，第二个参数为要更新的内容
 ```javascript
 // 参数类似于immutableJS的mergeIn方法
-dispatch[COMMON_TYPE.UPDATE](['dates', 0], { now: Date.now() })
+dispatch.update(['dates', 0], { now: Date.now() })
 ```
 
 4.CLEAR: 针对List类型的数据，做清空操作，包含一个参数为keyPath
 ```javascript
 // 参数类似于immutableJS的clear方法
-dispatch[COMMON_TYPE.UPDATE](['dates'])
+dispatch.update(['dates'])
 ```
 
 5.INSERT: 针对List类型的数据，做插入，两个参数，第一个参数为keyPath，为需要更新的路径，第二个参数insert的参数数组
 ```javascript
 // 参数类似于immutableJS的insert方法
-dispatch[COMMON_TYPE.UPDATE](['dates'], [2, Date.now()]) // 在第二项插入当前时间
+dispatch.update(['dates'], [2, Date.now()]) // 在第二项插入当前时间
 ```
 
 6.PUSH: 针对List类型的数据，做push
 ```javascript
-dispatch[COMMON_TYPE.UPDATE](['dates'], Date.now())
+dispatch.update(['dates'], Date.now())
 ```
 
 7.POP: 针对List类型的数据，做pop
 ```javascript
-dispatch[COMMON_TYPE.UPDATE](['dates']) // 在第二项插入当前时间
+dispatch.update(['dates']) // 在第二项插入当前时间
 ```
 
 8.SHIFT: 针对List类型的数据，做shift
 ```javascript
-dispatch[COMMON_TYPE.UPDATE](['dates'])
+dispatch.update(['dates'])
 ```
 
 9.UNSHIFT: 针对List类型的数据，做unshift
 ```javascript
-dispatch[COMMON_TYPE.UPDATE](['dates'], Date.now())
+dispatch.update(['dates'], Date.now())
 ```
 
 下面例子仅重写了 Example 组件，增加了点击和清除的操作
 
 ```javascript
 // 增加dispatch操作
-import { COMMON_TYPE } from 'storact'
 
 function Example() {
   const store = useStore() // 引入store中的数据
@@ -137,14 +135,14 @@ function Example() {
   // 增加一次点击次数，并记录点击发生的时间戳
   const handleClick = useCallback(() => {
     const currentTimes = store.get('times')
-    dispatch[COMMON_TYPE.UPDATE](['times'], currentTimes + 1)
-    dispatch[COMMON_TYPE.PUSH](['dates'], Date.now())
+    dispatch.update(['times'], currentTimes + 1)
+    dispatch.push(['dates'], Date.now())
   }, [store])
   
   // 重置状态
     const handleClear = useCallback(() => {
-      dispatch[COMMON_TYPE.UPDATE](['times'], 0)
-      dispatch[COMMON_TYPE.CLEAR](['dates'])
+      dispatch.update(['times'], 0)
+      dispatch.clear(['dates'])
     }, [])
   
   return (
@@ -180,15 +178,15 @@ const effects = {
             resolve(Date.now())
           }, 1000)
         })
-        dispatch[COMMON_TYPE.PUSH](['dates'], `当前时间：${result}`)
+        dispatch.push(['dates'], `当前时间：${result}`)
       } catch (e) {
         throw e
       }
     },
     click: ({ getState, dispatch }) => async () => {
       const currentTimes = getState().get('times')
-      dispatch[COMMON_TYPE.PUSH](['dates'], `当前时间：${Date.now()}`)
-      await dispatch[COMMON_TYPE.UPDATE](['times'], currentTimes + 1)
+      dispatch.push(['dates'], `当前时间：${Date.now()}`)
+      await dispatch.update(['times'], currentTimes + 1)
     },
     clickTwice: ({ dispatch }) => async () => {
       await dispatch.click()
@@ -196,8 +194,8 @@ const effects = {
     },
     clickWithMessage: ({ dispatch }) => async message => {
       const currentTimes = getState().get('times')
-      dispatch[COMMON_TYPE.PUSH](['dates'], `当前记录内容：${message}`)
-      await dispatch[COMMON_TYPE.UPDATE](['times'], currentTimes + 1)
+      dispatch.push(['dates'], `当前记录内容：${message}`)
+      await dispatch.update(['times'], currentTimes + 1)
     },
 }
 ```
@@ -227,8 +225,8 @@ function Example() {
   
   // 重置状态
   const handleClear = useCallback(() => {
-    dispatch[COMMON_TYPE.UPDATE](['times'], 0)
-    dispatch[COMMON_TYPE.CLEAR](['dates'])
+    dispatch.update(['times'], 0)
+    dispatch.clear(['dates'])
   }, [])
   
   return (

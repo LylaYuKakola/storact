@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { render } from 'react-dom'
-import { COMMON_CONFIG, COMMON_TYPE } from '../../src'
+import { COMMON_CONFIG } from '../../src'
 import { useDispatch, useStore, Provider } from './myStore'
 
 function IndexPage() {
@@ -20,8 +20,8 @@ function IndexPage() {
   }, [dispatch])
 
   const handleClear = useCallback(() => {
-    dispatch[COMMON_TYPE.CLEAR](['dates'])
-    dispatch[COMMON_TYPE.CLEAR](['times'])
+    dispatch.clear(['dates'])
+    dispatch.clear(['times'])
   }, [dispatch])
 
   const handleClickGetTime = useCallback(() => {

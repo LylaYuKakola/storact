@@ -2,6 +2,31 @@
  * @desc 针对原始传参action的dispatch, 改造为函数式action的集合，应用在enhanced中
  */
 
+import {
+  MERGE,
+  DELETE,
+  UPDATE,
+  CLEAR,
+  INSERT,
+  PUSH,
+  POP,
+  SHIFT,
+  UNSHIFT,
+} from '../utils/constants'
+
+const getActurlActionType = (key = '') => {
+  if (key === 'merge') return MERGE
+  if (key === 'delete') return DELETE
+  if (key === 'update') return UPDATE
+  if (key === 'clear') return CLEAR
+  if (key === 'insert') return INSERT
+  if (key === 'push') return PUSH
+  if (key === 'pop') return POP
+  if (key === 'shift') return SHIFT
+  if (key === 'unshift') return UNSHIFT
+  return key
+}
+
 // 对挂载effect的dispatch进行转换
 // 需要给挂载的effect传递 getState, originalDispatch
 // 但是不会对args做拆分
@@ -15,13 +40,13 @@ export const convertAfterStep1 = (getState, originalDispatch, effects) => {
           dispatch: effectActiveDispatch,
         })(...args)
       } else {
-        await originalDispatch({
-          type: key,
+        await Promise.resolve(originalDispatch({
+          type: getActurlActionType(key),
           payload: {
             keys: args[0],
             data: args[1],
           },
-        })
+        }))
       }
     },
   })
