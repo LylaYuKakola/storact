@@ -9,11 +9,11 @@ function IndexPage() {
 
   const handleClickWithoutParams = useCallback(() => {
     dispatch.click()
-  }, [dispatch, store])
+  }, [dispatch])
 
   const handleClickWithParams = useCallback(() => {
     dispatch.click(1, 2)
-  }, [dispatch, store])
+  }, [dispatch])
 
   const handleClickTwice = useCallback(() => {
     dispatch.clickTwice()
@@ -29,22 +29,22 @@ function IndexPage() {
   }, [dispatch])
 
   const handleClickGetTimeDelay = useCallback(() => {
-    const dispatchWithDelay = dispatch.config({ [COMMON_CONFIG.DELAY]: 1000 })
+    const dispatchWithDelay = dispatch.config({ [COMMON_CONFIG.DELAY]: 2000 })
     dispatchWithDelay.markCurrentTime()
-  }, [dispatch])
+  }, [])
 
   const handleClickGetTimeDebounce = useCallback(() => {
-    const dispatchWithDebounce = dispatch.config({ [COMMON_CONFIG.DEBOUNCE]: 1000 })
+    const dispatchWithDebounce = dispatch.config({ [COMMON_CONFIG.DEBOUNCE]: 2000 })
     dispatchWithDebounce.markCurrentTime()
   }, [dispatch])
 
   const handleClickGetTimeThrottle = useCallback(() => {
-    const dispatchWithThrottle = dispatch.config({ [COMMON_CONFIG.THROTTLE]: 1000 })
+    const dispatchWithThrottle = dispatch.config({ [COMMON_CONFIG.THROTTLE]: 2000 })
     dispatchWithThrottle.markCurrentTime()
   }, [dispatch])
 
   const handleClickGetTimePend = useCallback(() => {
-    const dispatchWithPend = dispatch.config({ [COMMON_CONFIG.PEND]: 1000 })
+    const dispatchWithPend = dispatch.config({ [COMMON_CONFIG.PEND]: 2000 })
     dispatchWithPend.markCurrentTime()
   }, [dispatch])
 

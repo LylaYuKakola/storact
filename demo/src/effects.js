@@ -2,12 +2,8 @@
 export default {
   markCurrentTime: ({ dispatch }) => async () => {
     try {
-      const result = await new Promise(resolve => {
-        setTimeout(() => {
-          resolve(Date.now())
-        }, 1000)
-      })
-      dispatch.push(['dates'], `当前时间：${result}`)
+      const result = await fetch('http://quan.suning.com/getSysTime.do').then(r => r.json())
+      dispatch.push(['dates'], `异步获取当前时间：${result.sysTime2}`)
     } catch (e) {
       throw e
     }
