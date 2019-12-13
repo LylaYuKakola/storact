@@ -23,28 +23,75 @@ import {
 } from './utils/constants'
 
 const __STORACT_STATE_ = {}
+let runningAction = null
+let activeAction = null
+
 
 // 导出的
 export const create = ({ initialState, middlewares, effects, namespace }) => {
   const storeContext = createContext(null)
   const dispatchContext = createContext(null)
 
+  const fixedNamespace = namespace || guid()
+
+  const firstMiddleWare = ({ getState }) => next => async action => {
+    await next(action)
+    const fixedAction = {
+      ...action,
+      type: String(action.type),
+    }
+    runningAction = fixedAction
+    __STORACT_STATE_[fixedNamespace].push([fixedAction, immutable.fromJS(getState() || {}).toJS()])
+    window.postMessage({
+      type: '__STORACT_STATE_',
+      data: __STORACT_STATE_,
+    }, '*')
+  }
+
   const Provider = ({ children }) => {
     const currentState = useRef(null)
     const [state, originalDispatch] = useAsyncReducer(reducer, initialize(initialState))
     const getState = useCallback(() => currentState.current, [])
-    const enhancedDispatch = useEnhanced({ originalDispatch, getState, middlewares, effects })
+    const enhancedDispatch = useEnhanced({
+      originalDispatch,
+      getState,
+      middlewares: [...(middlewares || []), firstMiddleWare],
+      effects,
+    })
 
     useEffect(() => {
-      if (window) {
-        __STORACT_STATE_[namespace || guid()] = immutable.fromJS(state || {}).toJS()
+      __STORACT_STATE_[fixedNamespace] = []
+      __STORACT_STATE_[fixedNamespace].push(['initial', immutable.fromJS(state || {}).toJS()])
+      setTimeout(() => {
+        window.postMessage({
+          type: '__STORACT_STATE_',
+          data: __STORACT_STATE_,
+        }, '*')
+      }, 500)
+      return () => {
+        Reflect.deleteProperty(__STORACT_STATE_, fixedNamespace)
         window.postMessage({
           type: '__STORACT_STATE_',
           data: __STORACT_STATE_,
         }, '*')
       }
+    }, [])
+
+    useEffect(() => {
       currentState.current = state
-    }, [state, namespace])
+      if (!runningAction) return
+      if (runningAction !== activeAction) {
+        __STORACT_STATE_[fixedNamespace].push([runningAction, immutable.fromJS(currentState.current || {}).toJS()])
+        activeAction = runningAction
+      } else {
+        __STORACT_STATE_[fixedNamespace].pop()
+        __STORACT_STATE_[fixedNamespace].push([runningAction, immutable.fromJS(currentState.current || {}).toJS()])
+      }
+      window.postMessage({
+        type: '__STORACT_STATE_',
+        data: __STORACT_STATE_,
+      }, '*')
+    }, [state])
 
     return (
       <dispatchContext.Provider value={enhancedDispatch}>

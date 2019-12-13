@@ -19,8 +19,8 @@ export const INSERT = Symbol('insert')
 /* ************************************* */
 
 /* ********* dispatch的config类型 ********** */
-export const PEND = Symbol('pend')
-export const DEBOUNCE = Symbol('debounce')
-export const THROTTLE = Symbol('throttle')
-export const DELAY = Symbol('delay')
+export const PEND = '_pend_'
+export const DEBOUNCE = '_debounce_'
+export const THROTTLE = '_throttle_'
+export const DELAY = '_delay_'
 /* **************************************** */
