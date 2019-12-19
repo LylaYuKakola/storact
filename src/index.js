@@ -22,9 +22,8 @@ import {
   PEND,
 } from './utils/constants'
 
-const __STORACT_STATE_ = {}
-let runningAction = null
-let activeAction = null
+let runningActionIndex = 0
+let lastActionIndex = 0
 
 
 // 导出的
@@ -34,17 +33,21 @@ export const create = ({ initialState, middlewares, effects, namespace }) => {
 
   const fixedNamespace = namespace || guid()
 
-  const firstMiddleWare = ({ getState }) => next => async action => {
+  const firstMiddleware = () => next => async action => {
+    runningActionIndex += 1
+    await next(action)
+  }
+
+  const lastMiddleWare = ({ getState }) => next => async action => {
     await next(action)
     const fixedAction = {
       ...action,
       type: String(action.type),
     }
-    runningAction = fixedAction
-    __STORACT_STATE_[fixedNamespace].push([fixedAction, immutable.fromJS(getState() || {}).toJS()])
+    lastActionIndex += 1
     window.postMessage({
-      type: '__STORACT_STATE_',
-      data: __STORACT_STATE_,
+      type: '_ADD_STATE_',
+      data: [fixedNamespace, fixedAction, immutable.fromJS(getState() || {}).toJS()],
     }, '*')
   }
 
@@ -55,42 +58,34 @@ export const create = ({ initialState, middlewares, effects, namespace }) => {
     const enhancedDispatch = useEnhanced({
       originalDispatch,
       getState,
-      middlewares: [...(middlewares || []), firstMiddleWare],
+      middlewares: [firstMiddleware, ...(middlewares || []), lastMiddleWare],
       effects,
     })
 
     useEffect(() => {
-      __STORACT_STATE_[fixedNamespace] = []
-      __STORACT_STATE_[fixedNamespace].push(['initial', immutable.fromJS(state || {}).toJS()])
       setTimeout(() => {
         window.postMessage({
-          type: '__STORACT_STATE_',
-          data: __STORACT_STATE_,
+          type: '_ADD_STATE_',
+          data: [fixedNamespace, 'INITIAL_STATE', immutable.fromJS(state || {}).toJS()],
         }, '*')
       }, 500)
       return () => {
-        Reflect.deleteProperty(__STORACT_STATE_, fixedNamespace)
         window.postMessage({
-          type: '__STORACT_STATE_',
-          data: __STORACT_STATE_,
+          type: '_DELETE_NAMESPACE_',
+          data: fixedNamespace,
         }, '*')
       }
     }, [])
 
     useEffect(() => {
       currentState.current = state
-      if (!runningAction) return
-      if (runningAction !== activeAction) {
-        __STORACT_STATE_[fixedNamespace].push([runningAction, immutable.fromJS(currentState.current || {}).toJS()])
-        activeAction = runningAction
-      } else {
-        __STORACT_STATE_[fixedNamespace].pop()
-        __STORACT_STATE_[fixedNamespace].push([runningAction, immutable.fromJS(currentState.current || {}).toJS()])
+      if (!lastActionIndex) return
+      if (lastActionIndex === runningActionIndex) {
+        window.postMessage({
+          type: '_CHANGE_STATE_',
+          data: [fixedNamespace, immutable.fromJS(getState() || {}).toJS()],
+        }, '*')
       }
-      window.postMessage({
-        type: '__STORACT_STATE_',
-        data: __STORACT_STATE_,
-      }, '*')
     }, [state])
 
     return (
