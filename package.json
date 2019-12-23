@@ -1,6 +1,6 @@
 {
   "name": "storact",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "restore React component",
   "main": "lib/index.js",
   "module": "es/index.js",
