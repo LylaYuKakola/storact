@@ -56,7 +56,7 @@ export default (state, action) => {
       error('Type "PUSH" of dispatch did not act on a target which is not a List instance')
       return state
     }
-    return state.setIn(keys, target.push(data))
+    return state.setIn(keys, data instanceof Array ? target.push(...data) : target.push(data))
   }
 
   if (type === POP) {
@@ -86,7 +86,7 @@ export default (state, action) => {
       error('Type "UNSHIFT" of dispatch did not act on target which is not a List instance')
       return state
     }
-    return state.setIn(keys, target.unshift(data))
+    return state.setIn(keys, data instanceof Array ? target.unshift(...data) : target.unshift(data))
   }
 
   if (type === INSERT) {

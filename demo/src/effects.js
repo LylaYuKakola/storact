@@ -13,8 +13,9 @@ export default {
     dispatch.push(['dates'], `当前时间：${Date.now()}`)
     await dispatch.update(['times'], currentTimes + ((+a + +b) || 1))
   },
-  clickTwice: ({ dispatch }) => async () => {
-    await dispatch.click()
-    await dispatch.click()
+  clickTwice: ({ getState, dispatch }) => async () => {
+    const currentTimes = getState().get('times')
+    dispatch.push(['dates'], [`当前时间：${Date.now()}`, `当前时间：${Date.now() + 1000}`])
+    await dispatch.update(['times'], currentTimes + ((+a + +b) || 1))
   },
 }
