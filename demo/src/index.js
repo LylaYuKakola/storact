@@ -1,56 +1,52 @@
 import React, { useCallback } from 'react'
 import { render } from 'react-dom'
 import { COMMON_CONFIG } from '../../src'
-import { useDispatch, useStore, Provider } from './myStore'
+import { useDispatcher, useGetter, Provider } from './myStore'
 
 function IndexPage() {
-  const dispatch = useDispatch()
-  const store = useStore()
+  const dispatcher = useDispatcher()
+  const getter = useGetter()
 
   const handleClickWithoutParams = useCallback(() => {
-    dispatch.click()
-  }, [dispatch])
+    dispatcher.click()
+  }, [dispatcher])
 
   const handleClickWithParams = useCallback(() => {
-    dispatch.click(1, 2)
-  }, [dispatch])
+    dispatcher.click(1, 2)
+  }, [dispatcher])
 
   const handleClickTwice = useCallback(() => {
-    dispatch.clickTwice()
-  }, [dispatch])
+    dispatcher.clickTwice()
+  }, [dispatcher])
 
   const handleClear = useCallback(() => {
-    dispatch.clear(['dates'])
-    dispatch.clear(['times'])
-  }, [dispatch])
+    dispatcher.clear(['dates'])
+    dispatcher.clear(['times'])
+  }, [dispatcher])
 
   const handleClickGetTime = useCallback(() => {
-    dispatch.markCurrentTime()
-  }, [dispatch])
+    dispatcher.markCurrentTime()
+  }, [dispatcher])
 
   const handleClickGetTimeDelay = useCallback(() => {
-    const dispatchWithDelay = dispatch.config({ [COMMON_CONFIG.DELAY]: 2000 })
+    const dispatchWithDelay = dispatcher.config({ [COMMON_CONFIG.DELAY]: 2000 })
     dispatchWithDelay.markCurrentTime()
   }, [])
 
   const handleClickGetTimeDebounce = useCallback(() => {
-    const dispatchWithDebounce = dispatch.config({ [COMMON_CONFIG.DEBOUNCE]: 2000 })
+    const dispatchWithDebounce = dispatcher.config({ [COMMON_CONFIG.DEBOUNCE]: 2000 })
     dispatchWithDebounce.markCurrentTime()
-  }, [dispatch])
+  }, [dispatcher])
 
   const handleClickGetTimeThrottle = useCallback(() => {
-    const dispatchWithThrottle = dispatch.config({ [COMMON_CONFIG.THROTTLE]: 2000 })
+    const dispatchWithThrottle = dispatcher.config({ [COMMON_CONFIG.THROTTLE]: 2000 })
     dispatchWithThrottle.markCurrentTime()
-  }, [dispatch])
+  }, [dispatcher])
 
   const handleClickGetTimePend = useCallback(() => {
-    const dispatchWithPend = dispatch.config({ [COMMON_CONFIG.PEND]: 2000 })
+    const dispatchWithPend = dispatcher.config({ [COMMON_CONFIG.PEND]: 2000 })
     dispatchWithPend.markCurrentTime()
-  }, [dispatch])
-
-  // useEffect(() => {
-  //   debugger
-  // }, [store])
+  }, [dispatcher])
 
   return (
     <div>
@@ -63,10 +59,10 @@ function IndexPage() {
       <button onClick={handleClickGetTimeDebounce}>getTime_Debounce</button><br />
       <button onClick={handleClickGetTimeThrottle}>getTime_Throttle</button><br />
       <button onClick={handleClickGetTimePend}>getTime_Pend</button><br />
-      <p>times: {String(store.get('times'))}</p><br />
+      <p>times: {getter('times')}</p><br />
       <ol style={{ width: 300, height: 300, overflow: 'auto', border: '1px solid red' }}>
         {
-          store.get('dates').toJS().map(date => (
+          getter('dates').map(date => (
             <li>{date}</li>
           ))
         }
