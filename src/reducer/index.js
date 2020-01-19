@@ -13,7 +13,7 @@ import {
   UNSHIFT,
   INSERT,
 } from '../utils/constants'
-import { List } from 'immutable'
+import { List, Map, fromJS } from 'immutable'
 import { error } from '../utils/log'
 
 // 提供基础的state操作
@@ -27,13 +27,12 @@ export default (state, action) => {
   if (type === MERGE) {
     const oldValue = !keys.length ? state : state.getIn(keys)
     if (!oldValue) {
-      return state.setIn(keys, data)
+      return state.setIn(keys, fromJS(data))
     }
-    return state.mergeIn(keys, data)
   }
 
   if (type === UPDATE) {
-    return state.setIn(keys, data)
+    return state.setIn(keys, fromJS(data))
   }
 
   if (type === DELETE) {
