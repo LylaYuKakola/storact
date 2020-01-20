@@ -25,10 +25,7 @@ export default (state, action) => {
   const { keys, data } = (payload || {})
 
   if (type === MERGE) {
-    const oldValue = !keys.length ? state : state.getIn(keys)
-    if (!oldValue) {
-      return state.setIn(keys, fromJS(data))
-    }
+    return state.mergeIn(keys, data)
   }
 
   if (type === UPDATE) {

@@ -29,9 +29,9 @@ export const create = ({ initialState, middlewares, effects }) => {
     const [state, originalDispatch] = useAsyncReducer(reducer, initialize(initialState))
 
     // 获取当前的state状态
-    const getState = useCallback((...args) => {
-      if (args.length === 0) return state.toJS()
-      const target = state.getIn(args)
+    const getState = useCallback((path = []) => {
+      if (path.length === 0) return state.toJS()
+      const target = state.getIn(path)
       if (List.isList(target) || Map.isMap(target)) return target.toJS()
       return target
     }, [state])
@@ -52,10 +52,10 @@ export const create = ({ initialState, middlewares, effects }) => {
     )
   }
 
-  const useDispatcher = () => useContext(dispatchContext)
-  const useGetter = () => useContext(storeContext)
+  const useDispatch = () => useContext(dispatchContext)
+  const useGetState = () => useContext(storeContext)
 
-  return { useDispatcher, useGetter, Provider }
+  return { useDispatch, useGetState, Provider }
 }
 
 export const COMMON_CONFIG = Object.freeze({
