@@ -5,7 +5,10 @@ import { useDispatch, useGetState, Provider } from './myStore'
 
 function IndexPage() {
   const dispatch = useDispatch()
-  const getState = useGetState()
+  const timesInStore = useGetState(['msg', 'times']) || 0
+  const asyncInStore = useGetState(['msg', 'async']) || 0
+  const syncInStore = useGetState(['msg', 'sync']) || 0
+  const dateListInStore = useGetState(['dates']) || []
 
   const handleInsertAsLast = useCallback(() => {
     dispatch.insertAsLast()
@@ -74,13 +77,13 @@ function IndexPage() {
       <button onClick={handleClickGetTimeDebounce}>getTime_Debounce</button><br />
       <button onClick={handleClickGetTimeThrottle}>getTime_Throttle</button><br />
       <button onClick={handleClickGetTimePend}>getTime_Pend</button><br />
-      <p>times: {getState(['msg', 'times'])}</p>
-      <p>async: {getState(['msg', 'async'])}</p>
-      <p>sync: {getState(['msg', 'sync'])}</p>
+      <p>times: {timesInStore}</p>
+      <p>async: {asyncInStore}</p>
+      <p>sync: {syncInStore}</p>
       <br />
       <ol style={{ width: 300, height: 300, overflow: 'auto', border: '1px solid red' }}>
         {
-          getState(['dates']).map(date => (
+          dateListInStore.map(date => (
             <li>{date}</li>
           ))
         }

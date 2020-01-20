@@ -25,8 +25,8 @@ export default {
     dispatch.push(['dates'], [`当前时间：${Date.now()}`, `当前时间：${Date.now() + 1000}`])
     const { sync, times } = getState(['msg'])
     dispatch.merge(['msg'], {
-      sync: sync + 1,
-      times: times + 1,
+      sync: sync + 2,
+      times: times + 2,
     })
   },
   insertAsFirst: ({ getState, dispatch }) => async (a, b) => {
@@ -41,8 +41,8 @@ export default {
     dispatch.unshift(['dates'], [`当前时间：${Date.now()}`, `当前时间：${Date.now() + 1000}`])
     const { sync, times } = getState(['msg'])
     dispatch.merge(['msg'], {
-      sync: sync + 1,
-      times: times + 1,
+      sync: sync + 2,
+      times: times + 2,
     })
   },
   deleteFirst: ({ dispatch }) => async () => {
