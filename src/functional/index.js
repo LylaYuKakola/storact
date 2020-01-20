@@ -14,7 +14,7 @@ import {
   UNSHIFT,
 } from '../utils/constants'
 
-const getActurlActionType = (key = '') => {
+const getActionType = (key = '') => {
   if (key === 'merge') return MERGE
   if (key === 'delete') return DELETE
   if (key === 'update') return UPDATE
@@ -41,7 +41,7 @@ export const convertAfterStep1 = (getState, originalDispatch, effects) => {
         })(...args)
       } else {
         await Promise.resolve(originalDispatch({
-          type: getActurlActionType(key),
+          type: getActionType(key),
           payload: {
             keys: args[0],
             data: args[1],
