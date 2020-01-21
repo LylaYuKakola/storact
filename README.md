@@ -16,7 +16,6 @@ react-hooks实现的状态容器，用于简单的数据共享和状态管理，
 
   1. create：用来生成store和dispatch的方法，以及容器Provider
   2. COMMON_CONFIG：封装工具提供的dispatch的防抖、节流、延迟、挂起的配置关键字
-  3. 内置了merge、update、delete、clear、push、pop、shift、unshift几种方法
 
 ### 1. 基本创建
 
@@ -32,7 +31,7 @@ create方法的出参也是一个对象，同样包含三个属性
   - useDispatch： 暴露dispatch方法
   - useStore：暴露store的数据
 
-开始使用不用关心 _middlewares_ 和 _effects_ ，直接写入 _initialState_ 即可
+开始使用事，可以先不用关心 _middlewares_ 和 _effects_ ，直接写入 _initialState_ 即可
 
 ```javascript
 import React, { useCallback } from 'react'

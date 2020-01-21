@@ -15,6 +15,7 @@ import initialize from './initialize'
 import reducer from './reducer'
 import useEnhanced from './enhanced'
 import useAsyncReducer from './uses/useAsyncReducer'
+import guid from './utils/guid'
 import {
   DEBOUNCE,
   THROTTLE,
@@ -24,10 +25,36 @@ import {
 
 
 // 导出的
-export const create = ({ initialState, middlewares, effects }) => {
+export const create = ({ initialState, middlewares, effects, namespace }) => {
   const storeContext = createContext(null)
   const dispatchContext = createContext(null)
   const fixedInitialize = initialize(initialState)
+
+  // 如果没有指定 'namespace'，就默认为 'Global'
+  const fixedNamespace = namespace || `Global-${guid()}`
+
+  // 卸载 fixedNamespace 操作
+  const deleteCurrentNamespace = () => {
+    window.postMessage({
+      type: '_DELETE_NAMESPACE_',
+      data: fixedNamespace,
+    }, '*')
+    window.removeEventListener('beforeunload', deleteCurrentNamespace)
+    return 'delete NAMESPACE'
+  }
+
+  // 最后一个中间件，用来记录一个action执行的结束
+  const lastMiddleWare = ({ getState }) => next => async action => {
+    await next(action)
+    const fixedAction = {
+      ...action,
+      type: String(action.type),
+    }
+    window.postMessage({
+      type: '_ADD_STATE_',
+      data: [fixedNamespace, fixedAction, getState()],
+    }, '*')
+  }
 
   // 核心根容器
   const Provider = ({ children }) => {
@@ -62,12 +89,23 @@ export const create = ({ initialState, middlewares, effects }) => {
     const enhancedDispatch = useEnhanced({
       originalDispatch,
       getState,
-      middlewares,
+      middlewares: [...middlewares, lastMiddleWare],
       effects,
     })
 
     useEffect(() => {
+      // 这里需要绕到下次时间循环的时候执行 'initial'
+      setTimeout(() => {
+        window.postMessage({
+          type: '_ADD_STATE_',
+          data: [fixedNamespace, 'INITIAL_STATE', currentState.current.toJS()],
+        }, '*')
+      }, 500)
+
+      // 页面关闭时，卸载当前的 fixedNamespace
+      window.addEventListener('beforeunload', deleteCurrentNamespace)
       return () => {
+        deleteCurrentNamespace()
         currentState.current = null
       }
     }, [])
