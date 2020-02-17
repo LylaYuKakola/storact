@@ -16,16 +16,11 @@ import reducer from './reducer'
 import useEnhanced from './enhanced'
 import useAsyncReducer from './uses/useAsyncReducer'
 import guid from './utils/guid'
-import {
-  DEBOUNCE,
-  THROTTLE,
-  DELAY,
-  PEND,
-} from './utils/constants'
+import * as tj from './utils/typeJudgement'
 
 
 // 导出的
-export const create = ({ initialState, middlewares, effects, namespace }) => {
+export default ({ initialState, middlewares, effects, namespace }) => {
   const storeContext = createContext(null)
   const dispatchContext = createContext(null)
   const fixedInitialize = initialize(initialState)
@@ -78,6 +73,10 @@ export const create = ({ initialState, middlewares, effects, namespace }) => {
     // 用在具体的组件里
     const stateGetterForComponent = useCallback((path = []) => {
       const target = useMemo(() => {
+        if (!tj.isArray(path)) {
+          console.error('Error from "useGetState": the param must be an array')
+          return null
+        }
         return state.getIn(path)
       }, [state, path])
       return useMemo(() => {
@@ -120,15 +119,7 @@ export const create = ({ initialState, middlewares, effects, namespace }) => {
   }
 
   const useDispatch = () => useContext(dispatchContext)
-  const useGetState = path => useContext(storeContext)(path)
+  const useStoreState = path => useContext(storeContext)(path)
 
-  return { useDispatch, useGetState, Provider }
+  return { useDispatch, useStoreState, Provider }
 }
-
-export const COMMON_CONFIG = Object.freeze({
-  DEBOUNCE,
-  THROTTLE,
-  DELAY,
-  PEND,
-})
-

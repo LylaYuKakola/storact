@@ -1,15 +1,14 @@
 import React, { useState, useCallback } from 'react'
 import { render } from 'react-dom'
-import { COMMON_CONFIG } from '../../src'
-import { useDispatch, useGetState, Provider } from './myStore'
+import { useDispatch, useStoreState, Provider } from './myStore'
 
 function IndexPage() {
   const dispatch = useDispatch()
   const [inputValue, setInputValue] = useState()
-  const timesInStore = useGetState(['msg', 'times']) || 0
-  const asyncInStore = useGetState(['msg', 'async']) || 0
-  const syncInStore = useGetState(['msg', 'sync']) || 0
-  const dateListInStore = useGetState(['dates']) || []
+  const timesInStore = useStoreState(['msg', 'times']) || 0
+  const asyncInStore = useStoreState(['msg', 'async']) || 0
+  const syncInStore = useStoreState(['msg', 'sync']) || 0
+  const dateListInStore = useStoreState(['dates']) || []
 
   const handleInsertAsLast = useCallback(() => {
     dispatch.insertAsLast()
@@ -45,22 +44,22 @@ function IndexPage() {
   }, [dispatch])
 
   const handleClickGetTimeDelay = useCallback(() => {
-    const dispatchWithDelay = dispatch.config({ [COMMON_CONFIG.DELAY]: 2000 })
+    const dispatchWithDelay = dispatch.config({ delay: 2000 })
     dispatchWithDelay.markCurrentTimeAsync()
   }, [])
 
   const handleClickGetTimeDebounce = useCallback(() => {
-    const dispatchWithDebounce = dispatch.config({ [COMMON_CONFIG.DEBOUNCE]: 2000 })
+    const dispatchWithDebounce = dispatch.config({ debounce: 2000 })
     dispatchWithDebounce.markCurrentTimeAsync()
   }, [dispatch])
 
   const handleClickGetTimeThrottle = useCallback(() => {
-    const dispatchWithThrottle = dispatch.config({ [COMMON_CONFIG.THROTTLE]: 2000 })
+    const dispatchWithThrottle = dispatch.config({ throttle: 2000 })
     dispatchWithThrottle.markCurrentTimeAsync()
   }, [dispatch])
 
   const handleClickGetTimePend = useCallback(() => {
-    const dispatchWithPend = dispatch.config({ [COMMON_CONFIG.PEND]: 2000 })
+    const dispatchWithPend = dispatch.config({ pend: 2000 })
     dispatchWithPend.markCurrentTimeAsync()
   }, [dispatch])
 

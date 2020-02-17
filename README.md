@@ -1,21 +1,34 @@
 # storact
 
-react-hooks实现的状态容器，用于简单的数据共享和状态管理，同时配备了chrome的插件：【还在开发中...】
+    A Redux-like State Manager for React
 
-# 主要功能
+参照redux结合react-hooks实现的状态管理工具，在保留redux的 **"状态只读"** 和 **"纯函数修改"** 的基础上，做了以下的修改
 
-  1. 根据初始化数据一次性创建store和dispatch，并生成一个Provider，使用更加灵活
-  2. 结合immutableJS，保证数据的不变性
-  3. 提供了merge、update、delete、clear、push、pop、shift、unshift几种内置的基本的action，基本满足所有的immutable的数据操作
-  4. 提供dispatch的扩展，方便使用者包装出更符合业务的封装性更强的action
-  5. 提供dispatch的防抖、节流、延迟、挂起的配置，丰富了action
+  1. 固化了reducer，提供了merge、update、delete、clear、push、pop、shift、unshift这几种基本的action，满足基本的对状态的操作
+  2. dispatch调用action的方式改成属性方法调用
+  3. 实现了类似koa的中间件扩展方式
+  4. 提供dispatch的防抖、节流、延迟、挂起的配置，丰富了action
 
 # 使用
 
-整个工具仅暴露了如下
+npm install storact
 
-  1. create：用来生成store和dispatch的方法，以及容器Provider
-  2. COMMON_CONFIG：封装工具提供的dispatch的防抖、节流、延迟、挂起的配置关键字
+```javascript
+import storact from 'storact'
+
+const {
+  Provider, // 容器
+  useDispatch, // 获取dispatch的react-use
+  useStoreState, // 获取store状态的react-use
+} = storact({
+  initialState, // store的初始状态
+  middlewares, // 中间件们
+  effects, // 副作用集合
+})
+
+// ...
+
+```
 
 ### 1. 基本创建
 

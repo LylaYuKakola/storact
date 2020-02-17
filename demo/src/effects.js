@@ -5,7 +5,7 @@ export default {
       const result = await fetch('http://quan.suning.com/getSysTime.do').then(r => r.json())
       dispatch.push(['dates'], `异步获取当前时间：${result.sysTime2}`)
       const { async, times } = getState(['msg'])
-      dispatch.merge(['msg'], {
+      await dispatch.merge(['msg'], {
         async: async + 1,
         times: times + 1,
       })
