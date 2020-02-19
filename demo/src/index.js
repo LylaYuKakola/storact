@@ -59,7 +59,7 @@ function IndexPage() {
   }, [dispatch])
 
   const handleClickGetTimePend = useCallback(() => {
-    const dispatchWithPend = dispatch.config({ pend: 2000 })
+    const dispatchWithPend = dispatch.config({ pend: true })
     dispatchWithPend.markCurrentTimeAsync()
   }, [dispatch])
 
