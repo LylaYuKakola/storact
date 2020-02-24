@@ -119,7 +119,7 @@ export default ({ initialState, middlewares, effects, namespace }) => {
   }
 
   const useDispatch = () => useContext(dispatchContext)
-  const useStoreState = path => useContext(storeContext)(path)
+  const useStoreState = path => (useContext(storeContext) ? useContext(storeContext)(path) : null)
 
   return { useDispatch, useStoreState, Provider }
 }
