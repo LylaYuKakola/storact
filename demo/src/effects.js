@@ -50,6 +50,11 @@ export default {
       times: times + 2,
     })
   },
+  // 插入两次异步数据
+  insertTwiceAsync: ({ dispatch }) => async () => {
+    await dispatch.markCurrentTimeAsync()
+    await dispatch.markCurrentTimeAsync()
+  },
   // 插入记录（带参数）
   insertWithParams: ({ getState, dispatch }) => async value => {
     dispatch.push(['dates'], value)

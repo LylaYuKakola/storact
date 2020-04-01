@@ -43,6 +43,10 @@ function IndexPage() {
     dispatch.markCurrentTimeAsync()
   }, [dispatch])
 
+  const handleClickGetTimeTwice = useCallback(() => {
+    dispatch.insertTwiceAsync()
+  }, [dispatch])
+
   // 延迟两秒
   const handleClickGetTimeDelay = useCallback(() => {
     const dispatchWithDelay = dispatch.config({ delay: 2000 })
@@ -94,6 +98,7 @@ function IndexPage() {
       <br />
       <br />
       <button onClick={handleClickGetTime}>getTime（Async）</button>
+      <button onClick={handleClickGetTimeTwice}>getTime twice（Async）</button>
       <br />
       <button onClick={handleClickGetTimeDelay}>getTime_Delay（Async）</button>
       <br />
