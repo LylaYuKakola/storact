@@ -13,7 +13,7 @@ import {
   UNSHIFT,
   INSERT,
 } from '../utils/constants'
-import { List, Map, fromJS } from 'immutable'
+import { List, fromJS } from 'immutable'
 import { error } from '../utils/log'
 
 // 提供基础的state操作

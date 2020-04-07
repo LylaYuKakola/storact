@@ -73,4 +73,3 @@ export default {
     dispatch.pop(['dates'])
   },
 }
-

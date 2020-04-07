@@ -29,14 +29,14 @@ export default ({ initialState, middlewares, effects, namespace }) => {
   const fixedNamespace = namespace || `Global-${guid()}`
 
   // 卸载 fixedNamespace 操作
-  const deleteCurrentNamespace = () => {
-    window.postMessage({
-      type: '_DELETE_NAMESPACE_',
-      data: fixedNamespace,
-    }, '*')
-    window.removeEventListener('beforeunload', deleteCurrentNamespace)
-    return 'delete NAMESPACE'
-  }
+  // const deleteCurrentNamespace = () => {
+  //   window.postMessage({
+  //     type: '_DELETE_NAMESPACE_',
+  //     data: fixedNamespace,
+  //   }, '*')
+  //   window.removeEventListener('beforeunload', deleteCurrentNamespace)
+  //   return 'delete NAMESPACE'
+  // }
 
   // 最后一个中间件，用来记录一个action执行的结束
   const lastMiddleWare = ({ getState }) => next => async action => {
@@ -45,10 +45,10 @@ export default ({ initialState, middlewares, effects, namespace }) => {
       ...action,
       type: String(action.type),
     }
-    window.postMessage({
-      type: '_ADD_STATE_',
-      data: [fixedNamespace, fixedAction, getState()],
-    }, '*')
+    // window.postMessage({
+    //   type: '_ADD_STATE_',
+    //   data: [fixedNamespace, fixedAction, getState()],
+    // }, '*')
   }
 
   // 核心根容器
@@ -92,22 +92,22 @@ export default ({ initialState, middlewares, effects, namespace }) => {
       effects,
     })
 
-    useEffect(() => {
-      // 这里需要绕到下次时间循环的时候执行 'initial'
-      setTimeout(() => {
-        window.postMessage({
-          type: '_ADD_STATE_',
-          data: [fixedNamespace, 'INITIAL_STATE', currentState.current.toJS()],
-        }, '*')
-      }, 500)
-
-      // 页面关闭时，卸载当前的 fixedNamespace
-      window.addEventListener('beforeunload', deleteCurrentNamespace)
-      return () => {
-        deleteCurrentNamespace()
-        currentState.current = null
-      }
-    }, [])
+    // useEffect(() => {
+    //   // 这里需要绕到下次时间循环的时候执行 'initial'
+    //   setTimeout(() => {
+    //     window.postMessage({
+    //       type: '_ADD_STATE_',
+    //       data: [fixedNamespace, 'INITIAL_STATE', currentState.current.toJS()],
+    //     }, '*')
+    //   }, 500)
+    //
+    //   // 页面关闭时，卸载当前的 fixedNamespace
+    //   window.addEventListener('beforeunload', deleteCurrentNamespace)
+    //   return () => {
+    //     deleteCurrentNamespace()
+    //     currentState.current = null
+    //   }
+    // }, [])
 
     return (
       <dispatchContext.Provider value={enhancedDispatch}>
